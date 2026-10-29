@@ -1,0 +1,12 @@
+﻿CRBS – BUSINESS RULES / POLICY DECISIONS (NOT REQUIREMENT IDS),,,,,
+BR ID,Rule,Scope,Current draft interpretation,Evidence / source,Status / action
+BR-01,Student lead time,Student booking,Start time no more than 7 days ahead.,Prior workbook prototype / SR-06,Confirm with group/instructor; do not present as teacher-confirmed.
+BR-02,Lecturer lead time,Lecturer booking,Start time no more than 30 days ahead.,Prior workbook prototype / SR-07,Confirm with group/instructor.
+BR-03,Seminar duration,Lecturer seminar-room booking,Maximum duration 4 hours.,Prior NFR-D10 / SR-08,"Retain as business constraint, not separate NFR; confirm source chapter wording."
+BR-04,Cancellation boundary,Owner cancellation,Cancellation allowed when at least 2 hours remain; exactly 2:00:00 is allowed.,REQ-06 wording / SR-09,Ask instructor to confirm exact boundary.
+BR-05,Student weekly quota,Student booking,Each Student may book at most 10 total room-hours per Monday-to-Sunday week, summed across all rooms.,Prior prototype setting / SR-15,Confirmed project rule (2026-10-19); enforce across all rooms for each Student.
+BR-06,Pending reservation conflict policy,All booking requests,Pending Lecturer Confirmation and Pending Staff Approval reserve the time slot to prevent double booking.,Hazard HZ-01; SR-05,Recommended safety behavior; confirm policy.
+BR-07,Student supervision,Student practice session,A named Lecturer must confirm supervision before Facility Staff may decide.,Instructor’s transcript example,Chosen baseline for this draft; confirm whether all Student bookings or only academic practice use this gate.
+BR-08,Lecturer booking,Make-up/additional class or seminar,Lecturer is the primary actor for their own booking request; Facility Staff only reviews/decides.,Instructor’s transcript example,Adopted in scenario and use-case model.
+BR-09,Adjacent slots,Any resource,A booking ending at 16:00 does not conflict with one starting at 16:00.,Prior prototype tests,Retain; test with interval predicate.
+BR-10,Notification failure,All state changes,Commit valid core action; queue notification for retry.,REQ-10 / prior workbook,Retain as reliability behavior; production integration not yet verified.

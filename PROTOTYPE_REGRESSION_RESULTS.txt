@@ -1,0 +1,45 @@
+test_PT01_maintenance_blocks_checkout_retest_of_TC05 (test_crbs.TestCRBS.test_PT01_maintenance_blocks_checkout_retest_of_TC05) ... ok
+test_PT02_valid_booking_pending_and_acknowledgement (test_crbs.TestCRBS.test_PT02_valid_booking_pending_and_acknowledgement) ... ok
+test_PT03_overlapping_booking_rejected (test_crbs.TestCRBS.test_PT03_overlapping_booking_rejected) ... ok
+test_PT04_adjacent_slot_allowed (test_crbs.TestCRBS.test_PT04_adjacent_slot_allowed) ... ok
+test_PT05_invalid_interval_rejected (test_crbs.TestCRBS.test_PT05_invalid_interval_rejected) ... ok
+test_PT06_staff_approves_pending_booking (test_crbs.TestCRBS.test_PT06_staff_approves_pending_booking) ... ok
+test_PT07_student_cannot_approve (test_crbs.TestCRBS.test_PT07_student_cannot_approve) ... ok
+test_PT08_cannot_decide_booking_twice (test_crbs.TestCRBS.test_PT08_cannot_decide_booking_twice) ... ok
+test_PT09_restricted_resource_hidden_from_student (test_crbs.TestCRBS.test_PT09_restricted_resource_hidden_from_student) ... ok
+test_PT10_restricted_resource_booking_denied (test_crbs.TestCRBS.test_PT10_restricted_resource_booking_denied) ... ok
+test_PT11_student_cannot_book_beyond_7_days (test_crbs.TestCRBS.test_PT11_student_cannot_book_beyond_7_days) ... ok
+test_PT12_lecturer_can_book_within_30_days (test_crbs.TestCRBS.test_PT12_lecturer_can_book_within_30_days) ... ok
+test_PT13_lecturer_seminar_over_4h_rejected (test_crbs.TestCRBS.test_PT13_lecturer_seminar_over_4h_rejected) ... ok
+test_PT14_student_weekly_quota_enforced (test_crbs.TestCRBS.test_PT14_student_weekly_quota_enforced) ... ok
+test_PT15_cancel_exactly_two_hours_before (test_crbs.TestCRBS.test_PT15_cancel_exactly_two_hours_before) ... ok
+test_PT16_cancel_under_two_hours_rejected (test_crbs.TestCRBS.test_PT16_cancel_under_two_hours_rejected) ... ok
+test_PT17_other_user_cannot_cancel (test_crbs.TestCRBS.test_PT17_other_user_cannot_cancel) ... ok
+test_PT18_checkout_valid_approved_equipment (test_crbs.TestCRBS.test_PT18_checkout_valid_approved_equipment) ... ok
+test_PT19_good_checkin_closes_transaction (test_crbs.TestCRBS.test_PT19_good_checkin_closes_transaction) ... ok
+test_PT20_damaged_checkin_opens_maintenance (test_crbs.TestCRBS.test_PT20_damaged_checkin_opens_maintenance) ... ok
+test_PT21_maintenance_resource_excluded_from_search (test_crbs.TestCRBS.test_PT21_maintenance_resource_excluded_from_search) ... ok
+test_PT22_close_incident_restores_resource (test_crbs.TestCRBS.test_PT22_close_incident_restores_resource) ... ok
+test_PT23_audit_update_delete_blocked (test_crbs.TestCRBS.test_PT23_audit_update_delete_blocked) ... ok
+test_PT24_notification_outage_does_not_block_booking (test_crbs.TestCRBS.test_PT24_notification_outage_does_not_block_booking) ... ok
+test_PT25_admin_assigns_role_and_audit (test_crbs.TestCRBS.test_PT25_admin_assigns_role_and_audit) ... ok
+test_PT26_staff_cannot_assign_role (test_crbs.TestCRBS.test_PT26_staff_cannot_assign_role) ... ok
+test_PT27_room_and_bundled_equipment_are_one_request (test_crbs.TestCRBS.test_PT27_room_and_bundled_equipment_are_one_request) ... ok
+test_PT28_register_and_login (test_crbs.TestCRBS.test_PT28_register_and_login) ... ok
+test_PT29_five_failed_logins_lock_account (test_crbs.TestCRBS.test_PT29_five_failed_logins_lock_account) ... ok
+test_PT30_conflicting_bundled_equipment_rejects_whole_booking (test_crbs.TestCRBS.test_PT30_conflicting_bundled_equipment_rejects_whole_booking) ... ok
+test_PT31_invalid_checkin_condition_rejected (test_crbs.TestCRBS.test_PT31_invalid_checkin_condition_rejected) ... ok
+test_PT32_maintenance_bundled_item_rejects_request (test_crbs.TestCRBS.test_PT32_maintenance_bundled_item_rejects_request) ... ok
+test_PT33_resource_catalogue_create_update_is_authorized_and_audited (test_crbs.TestCRBS.test_PT33_resource_catalogue_create_update_is_authorized_and_audited) ... ok
+test_PT34_booking_requires_purpose (test_crbs.TestCRBS.test_PT34_booking_requires_purpose) ... ok
+test_PT35_booking_list_is_scoped_to_requester (test_crbs.TestCRBS.test_PT35_booking_list_is_scoped_to_requester) ... ok
+test_PT36_lecturer_seminar_within_four_hours_succeeds (test_crbs.TestCRBS.test_PT36_lecturer_seminar_within_four_hours_succeeds) ... ok
+test_PT37_approval_rechecks_maintenance_on_bundled_item (test_crbs.TestCRBS.test_PT37_approval_rechecks_maintenance_on_bundled_item) ... ok
+test_PT38_invalid_login_password_rejected (test_crbs.TestCRBS.test_PT38_invalid_login_password_rejected) ... ok
+test_PT39_admin_disables_account_and_audits (test_crbs.TestCRBS.test_PT39_admin_disables_account_and_audits) ... ok
+test_PT40_lecturer_can_cancel_own_booking (test_crbs.TestCRBS.test_PT40_lecturer_can_cancel_own_booking) ... ok
+
+----------------------------------------------------------------------
+Ran 40 tests in 0.385s
+
+OK

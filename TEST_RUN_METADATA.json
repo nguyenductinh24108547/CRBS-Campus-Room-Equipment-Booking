@@ -1,0 +1,41 @@
+{
+  "package_name": "CRBS Integrated Traceable Draft",
+  "run_time_local_note": "Fresh validation rerun performed on 2026-10-16 after making PT-14 use two bookings in the same calendar week; raw pytest output included.",
+  "acceptance": {
+    "command": "python -m pytest tests/test_campus_booking.py -v",
+    "cases": [
+      "TC-01",
+      "TC-02",
+      "TC-03",
+      "TC-05",
+      "TC-06",
+      "TC-11",
+      "TC-26"
+    ],
+    "result": "7 passed",
+    "target": "src/crbs.py educational prototype / in-memory SQLite"
+  },
+  "regression": {
+    "command": "python -m unittest discover -s tests -p 'test_crbs.py' -v",
+    "ids": "PT-01..PT-40",
+    "result": "40 passed",
+    "target": "src/crbs.py educational prototype"
+  },
+  "demo": {
+    "command": "python src/crbs.py",
+    "exit_code": 0,
+    "target": "built-in prototype demo"
+  },
+  "catalogue": {
+    "designed_test_cases": 42,
+    "runtime_executable_catalogue_cases": 7,
+    "design_only_cases": 35,
+    "all_test_cases_have_data_definition": true
+  },
+  "not_evidence_for": "A separate deployed CRBS system or target database.",
+  "combined_pytest": {
+    "command": "python -m pytest -q",
+    "result": "54 passed",
+    "target": "package tests; educational Python/SQLite prototype and catalog contract checks only"
+  }
+}

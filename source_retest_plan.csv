@@ -1,0 +1,4 @@
+﻿CRBS – DEFECT / RETEST / REGRESSION PLAN,,,,,,,
+,,,,,,,
+Retest ID,Defect,Original Test,Fix Required,Regression Tests,Expected,Actual,Final Status
+RETEST-TC-05,DEF-01,TC-05,Block booking when equipment status = UNDER_MAINTENANCE; enforce server-side validation.,"TC-05, TC-11, TC-17",Booking rejected; equipment remains unavailable for booking,"Booking rejected as expected (pytest: 7 passed, 0 failed, 2026-10-01)",Executed - Passed

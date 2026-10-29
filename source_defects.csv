@@ -1,0 +1,3 @@
+﻿Open Defect & Retest Plan,,,,,,,
+Defect,Related Test,Hazard,Problem,Corrective Action,Owner,Status,Exit Criteria
+DEF-01,TC-05,HZ-02,Booking succeeds when equipment is Under Maintenance.,"Server-side booking validation must reject equipment whose status is UNDER_MAINTENANCE; confirmed via automated regression test (test_TC05_equipment_under_maintenance_cannot_be_booked, pytest, 2026-10-01, Passed). Validated against the TDD reference implementation; apply the same guard in the production CRBS codebase when implemented.",Facility Staff module dev team + QA Lead,Closed,TC-05 passes and TCA-09 mitigation confirmed

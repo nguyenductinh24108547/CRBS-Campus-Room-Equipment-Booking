@@ -1,0 +1,20 @@
+[
+  {
+    "suite": "regression",
+    "command": "python -m unittest discover -s tests -p test_crbs.py -v",
+    "exit_code": 0,
+    "output_tail": "t_PT37_approval_rechecks_maintenance_on_bundled_item) ... ok\ntest_PT38_invalid_login_password_rejected (test_crbs.TestCRBS.test_PT38_invalid_login_password_rejected) ... ok\ntest_PT39_admin_disables_account_and_audits (test_crbs.TestCRBS.test_PT39_admin_disables_account_and_audits) ... ok\ntest_PT40_lecturer_can_cancel_own_booking (test_crbs.TestCRBS.test_PT40_lecturer_can_cancel_own_booking) ... ok\n\n----------------------------------------------------------------------\nRan 40 tests in 0.388s\n\nOK\n"
+  },
+  {
+    "suite": "acceptance",
+    "command": "python -m pytest tests/test_campus_booking.py -q",
+    "exit_code": 0,
+    "output_tail": ".......                                                                  [100%]\n7 passed in 0.06s\n"
+  },
+  {
+    "suite": "catalog",
+    "command": "python -m pytest tests/test_catalog_contract.py -q",
+    "exit_code": 0,
+    "output_tail": ".......                                                                  [100%]\n7 passed in 0.05s\n"
+  }
+]
