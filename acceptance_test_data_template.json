@@ -1,0 +1,298 @@
+{
+  "schema_version": "1.0",
+  "project": "Campus Room & Equipment Booking System (CRBS)",
+  "scope": "Educational Python/SQLite prototype only; these tests do not prove the group production application.",
+  "base_fixture": {
+    "start_offset_days_from_now": 2,
+    "start_hour": 10,
+    "start_minute": 0,
+    "users": [
+      {
+        "key": "student",
+        "display_name": "Student One",
+        "role": "Student"
+      },
+      {
+        "key": "student2",
+        "display_name": "Student Two",
+        "role": "Student"
+      },
+      {
+        "key": "lecturer",
+        "display_name": "Lecturer One",
+        "role": "Lecturer"
+      },
+      {
+        "key": "facility_staff",
+        "display_name": "Facility Staff One",
+        "role": "Facility Staff"
+      },
+      {
+        "key": "system_admin",
+        "display_name": "System Admin One",
+        "role": "System Admin"
+      }
+    ],
+    "resources": [
+      {
+        "key": "room",
+        "name": "A101",
+        "kind": "Room",
+        "capacity": 30,
+        "restricted": false,
+        "allowed_roles": [
+          "Student",
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      },
+      {
+        "key": "room2",
+        "name": "A102",
+        "kind": "Room",
+        "capacity": 30,
+        "restricted": false,
+        "allowed_roles": [
+          "Student",
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      },
+      {
+        "key": "seminar_hall",
+        "name": "Seminar Hall",
+        "kind": "Seminar Room",
+        "capacity": 100,
+        "restricted": false,
+        "allowed_roles": [
+          "Student",
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      },
+      {
+        "key": "projector",
+        "name": "Projector P01",
+        "kind": "Equipment",
+        "capacity": 1,
+        "restricted": false,
+        "allowed_roles": [
+          "Student",
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      },
+      {
+        "key": "vip_room",
+        "name": "VIP Lab",
+        "kind": "Room",
+        "capacity": 20,
+        "restricted": true,
+        "allowed_roles": [
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      }
+    ]
+  },
+  "cases": {
+    "TC-01": {
+      "data_id": "TD-TC-01",
+      "title": "Booking succeeds for available room",
+      "purpose": "Verify a valid request creates a Pending booking.",
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "student",
+        "resource": "room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Group study",
+        "attendees": 5,
+        "bundled_equipment": []
+      },
+      "expected": {
+        "booking_created": true,
+        "status": "Pending"
+      },
+      "assertion": "The returned booking ID exists and its stored status equals Pending."
+    },
+    "TC-02": {
+      "data_id": "TD-TC-02",
+      "title": "Booking rejected when slot already confirmed",
+      "purpose": "Verify the overlap guard prevents a second booking for a conflicting time.",
+      "setup": {
+        "bookings_before_action": [
+          {
+            "requester": "student",
+            "resource": "room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 120,
+            "purpose": "Existing booking",
+            "attendees": 1
+          }
+        ],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "lecturer",
+        "resource": "room",
+        "start_offset_minutes": 30,
+        "duration_minutes": 60,
+        "purpose": "Overlapping booking",
+        "attendees": 1,
+        "bundled_equipment": []
+      },
+      "expected": {
+        "booking_created": false,
+        "error_contains": "not available",
+        "existing_booking_count_after": 1
+      },
+      "assertion": "A CRBSError is raised and no second booking is added."
+    },
+    "TC-03": {
+      "data_id": "TD-TC-03",
+      "title": "Facility Staff approves pending request",
+      "purpose": "Verify an authorized Facility Staff user can approve a Pending booking.",
+      "setup": {
+        "bookings_before_action": [
+          {
+            "requester": "student",
+            "resource": "room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 60,
+            "purpose": "Study",
+            "attendees": 1
+          }
+        ],
+        "maintenance_resources": []
+      },
+      "input": {
+        "decision_actor": "facility_staff",
+        "decision": "Approved",
+        "reason": "Checks passed",
+        "booking_ref": "most_recent_setup_booking"
+      },
+      "expected": {
+        "status": "Approved",
+        "notification_count": 2
+      },
+      "assertion": "Booking status becomes Approved and a second notification is recorded."
+    },
+    "TC-05": {
+      "data_id": "TD-TC-05",
+      "title": "Maintenance equipment cannot be booked",
+      "purpose": "Verify equipment in maintenance blocks a room-plus-equipment request.",
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": [
+          {
+            "resource": "projector",
+            "description": "Lamp broken"
+          }
+        ]
+      },
+      "input": {
+        "requester": "student",
+        "resource": "room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Practice",
+        "attendees": 6,
+        "bundled_equipment": [
+          "projector"
+        ]
+      },
+      "expected": {
+        "booking_created": false,
+        "error_contains": "under maintenance",
+        "booking_count_after": 0
+      },
+      "assertion": "The booking operation fails before any booking record is created."
+    },
+    "TC-06": {
+      "data_id": "TD-TC-06",
+      "title": "Student blocked from VIP/restricted room",
+      "purpose": "Verify a Student cannot book a restricted room outside the allow-list.",
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "student",
+        "resource": "vip_room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Research",
+        "attendees": 2,
+        "bundled_equipment": []
+      },
+      "expected": {
+        "booking_created": false,
+        "error_contains": "restricted",
+        "booking_count_after": 0
+      },
+      "assertion": "Authorization is denied and no booking record is created."
+    },
+    "TC-11": {
+      "data_id": "TD-TC-11",
+      "title": "Owner can cancel with more than two hours remaining",
+      "purpose": "Verify an owner may cancel before the two-hour cutoff.",
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "student",
+        "resource": "room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Study",
+        "attendees": 1,
+        "bundled_equipment": [],
+        "now_minutes_before_start": 180
+      },
+      "expected": {
+        "status": "Cancelled"
+      },
+      "assertion": "The owner's booking ends in Cancelled when cancellation occurs 180 minutes before start."
+    },
+    "TC-26": {
+      "data_id": "TD-TC-26",
+      "title": "Room booking with bundled equipment is one request",
+      "purpose": "Verify room and equipment are saved under a single booking ID.",
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "student",
+        "resource": "room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Practice",
+        "attendees": 6,
+        "bundled_equipment": [
+          "projector"
+        ]
+      },
+      "expected": {
+        "status": "Pending",
+        "booking_item_count": 2,
+        "item_roles": [
+          "PRIMARY",
+          "BUNDLED_EQUIPMENT"
+        ]
+      },
+      "assertion": "Exactly one booking is created with one PRIMARY room item and one BUNDLED_EQUIPMENT item."
+    }
+  },
+  "execution_note": "Only the seven cases in this file are executed by tests/test_campus_booking.py. The remaining catalogued cases are specified separately as draft test data and are not treated as executed."
+}

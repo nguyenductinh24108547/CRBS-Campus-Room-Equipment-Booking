@@ -1,0 +1,403 @@
+{
+  "schema_version": "1.1",
+  "project": "Campus Room & Equipment Booking System (CRBS)",
+  "scope": "Educational Python/SQLite prototype only; these tests do not prove the group production application.",
+  "source_workbook": "CRBS_Requirements_Master.xlsx",
+  "source_sheets": [
+    "test_cases",
+    "test_data"
+  ],
+  "generator": "scripts/generate_test_data.py",
+  "base_fixture": {
+    "start_offset_days_from_now": 2,
+    "start_hour": 10,
+    "start_minute": 0,
+    "users": [
+      {
+        "key": "student",
+        "display_name": "Student One",
+        "role": "Student"
+      },
+      {
+        "key": "student2",
+        "display_name": "Student Two",
+        "role": "Student"
+      },
+      {
+        "key": "lecturer",
+        "display_name": "Lecturer One",
+        "role": "Lecturer"
+      },
+      {
+        "key": "facility_staff",
+        "display_name": "Facility Staff One",
+        "role": "Facility Staff"
+      },
+      {
+        "key": "system_admin",
+        "display_name": "System Admin One",
+        "role": "System Admin"
+      }
+    ],
+    "resources": [
+      {
+        "key": "room",
+        "name": "A101",
+        "kind": "Room",
+        "capacity": 30,
+        "restricted": false,
+        "allowed_roles": [
+          "Student",
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      },
+      {
+        "key": "room2",
+        "name": "A102",
+        "kind": "Room",
+        "capacity": 30,
+        "restricted": false,
+        "allowed_roles": [
+          "Student",
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      },
+      {
+        "key": "seminar_hall",
+        "name": "Seminar Hall",
+        "kind": "Seminar Room",
+        "capacity": 100,
+        "restricted": false,
+        "allowed_roles": [
+          "Student",
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      },
+      {
+        "key": "projector",
+        "name": "Projector P01",
+        "kind": "Equipment",
+        "capacity": 1,
+        "restricted": false,
+        "allowed_roles": [
+          "Student",
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      },
+      {
+        "key": "vip_room",
+        "name": "VIP Lab",
+        "kind": "Room",
+        "capacity": 20,
+        "restricted": true,
+        "allowed_roles": [
+          "Lecturer",
+          "Facility Staff",
+          "System Admin"
+        ]
+      }
+    ]
+  },
+  "cases": {
+    "TC-01": {
+      "data_id": "TD-TC-01",
+      "title": "Booking succeeds for available room",
+      "purpose": "Verify a valid request creates a Pending booking.",
+      "excel_metadata": {
+        "type": "Positive",
+        "requirement_ids": "REQ-02",
+        "use_case_ids": "UC-03",
+        "priority": "Must",
+        "preconditions": "Authenticated; room available",
+        "steps": "Search → select slot → submit",
+        "expected_result": "Booking created with Pending",
+        "test_data_id": "TD-TC-01",
+        "test_data_source": "test_data/acceptance_test_data.json → cases.TC-01 (setup/input/expected/assertion; executed in prototype tests)"
+      },
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "student",
+        "resource": "room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Group study",
+        "attendees": 5,
+        "bundled_equipment": []
+      },
+      "expected": {
+        "booking_created": true,
+        "status": "Pending"
+      },
+      "assertion": "The returned booking ID exists and its stored status equals Pending.",
+      "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+      "execution_ready": true,
+      "scope": "Python/SQLite prototype only; not target application."
+    },
+    "TC-02": {
+      "data_id": "TD-TC-02",
+      "title": "Booking rejected when slot already confirmed",
+      "purpose": "Verify the overlap guard prevents a second booking for a conflicting time.",
+      "excel_metadata": {
+        "type": "Negative",
+        "requirement_ids": "REQ-02; REQ-03",
+        "use_case_ids": "UC-03",
+        "priority": "Must",
+        "preconditions": "Confirmed booking exists",
+        "steps": "Attempt overlap",
+        "expected_result": "Clear conflict rejection",
+        "test_data_id": "TD-TC-02",
+        "test_data_source": "test_data/acceptance_test_data.json → cases.TC-02 (setup/input/expected/assertion; executed in prototype tests)"
+      },
+      "setup": {
+        "bookings_before_action": [
+          {
+            "requester": "student",
+            "resource": "room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 120,
+            "purpose": "Existing booking",
+            "attendees": 1
+          }
+        ],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "lecturer",
+        "resource": "room",
+        "start_offset_minutes": 30,
+        "duration_minutes": 60,
+        "purpose": "Overlapping booking",
+        "attendees": 1,
+        "bundled_equipment": []
+      },
+      "expected": {
+        "booking_created": false,
+        "error_contains": "not available",
+        "existing_booking_count_after": 1
+      },
+      "assertion": "A CRBSError is raised and no second booking is added.",
+      "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+      "execution_ready": true,
+      "scope": "Python/SQLite prototype only; not target application."
+    },
+    "TC-03": {
+      "data_id": "TD-TC-03",
+      "title": "Facility Staff approves pending request",
+      "purpose": "Verify an authorized Facility Staff user can approve a Pending booking.",
+      "excel_metadata": {
+        "type": "Positive",
+        "requirement_ids": "REQ-03",
+        "use_case_ids": "UC-09",
+        "priority": "Must",
+        "preconditions": "Pending exists",
+        "steps": "Open → review → approve",
+        "expected_result": "Confirmed; requester notified",
+        "test_data_id": "TD-TC-03",
+        "test_data_source": "test_data/acceptance_test_data.json → cases.TC-03 (setup/input/expected/assertion; executed in prototype tests)"
+      },
+      "setup": {
+        "bookings_before_action": [
+          {
+            "requester": "student",
+            "resource": "room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 60,
+            "purpose": "Study",
+            "attendees": 1
+          }
+        ],
+        "maintenance_resources": []
+      },
+      "input": {
+        "decision_actor": "facility_staff",
+        "decision": "Approved",
+        "reason": "Checks passed",
+        "booking_ref": "most_recent_setup_booking"
+      },
+      "expected": {
+        "status": "Approved",
+        "notification_count": 2
+      },
+      "assertion": "Booking status becomes Approved and a second notification is recorded.",
+      "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+      "execution_ready": true,
+      "scope": "Python/SQLite prototype only; not target application."
+    },
+    "TC-05": {
+      "data_id": "TD-TC-05",
+      "title": "Maintenance equipment cannot be booked",
+      "purpose": "Verify equipment in maintenance blocks a room-plus-equipment request.",
+      "excel_metadata": {
+        "type": "Negative",
+        "requirement_ids": "REQ-07",
+        "use_case_ids": "UC-01, UC-03, UC-13",
+        "priority": "Must",
+        "preconditions": "Equipment item (e.g., JBL Speaker) status is 'Under Maintenance'",
+        "steps": "Attempt to create a booking selecting equipment marked 'Under Maintenance'",
+        "expected_result": "Booking is rejected with clear error message (Equipment is under maintenance)",
+        "test_data_id": "TD-TC-05",
+        "test_data_source": "test_data/acceptance_test_data.json → cases.TC-05 (setup/input/expected/assertion; executed in prototype tests)"
+      },
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": [
+          {
+            "resource": "projector",
+            "description": "Lamp broken"
+          }
+        ]
+      },
+      "input": {
+        "requester": "student",
+        "resource": "room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Practice",
+        "attendees": 6,
+        "bundled_equipment": [
+          "projector"
+        ]
+      },
+      "expected": {
+        "booking_created": false,
+        "error_contains": "under maintenance",
+        "booking_count_after": 0
+      },
+      "assertion": "The booking operation fails before any booking record is created.",
+      "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+      "execution_ready": true,
+      "scope": "Python/SQLite prototype only; not target application."
+    },
+    "TC-06": {
+      "data_id": "TD-TC-06",
+      "title": "Student blocked from VIP/restricted room",
+      "purpose": "Verify a Student cannot book a restricted room outside the allow-list.",
+      "excel_metadata": {
+        "type": "Security",
+        "requirement_ids": "REQ-09",
+        "use_case_ids": "UC-03",
+        "priority": "Must",
+        "preconditions": "Student logged in",
+        "steps": "Attempt restricted booking",
+        "expected_result": "Access denied/logged",
+        "test_data_id": "TD-TC-06",
+        "test_data_source": "test_data/acceptance_test_data.json → cases.TC-06 (setup/input/expected/assertion; executed in prototype tests)"
+      },
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "student",
+        "resource": "vip_room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Research",
+        "attendees": 2,
+        "bundled_equipment": []
+      },
+      "expected": {
+        "booking_created": false,
+        "error_contains": "restricted",
+        "booking_count_after": 0
+      },
+      "assertion": "Authorization is denied and no booking record is created.",
+      "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+      "execution_ready": true,
+      "scope": "Python/SQLite prototype only; not target application."
+    },
+    "TC-11": {
+      "data_id": "TD-TC-11",
+      "title": "Owner can cancel more than two hours before start",
+      "purpose": "Verify owner cancellation succeeds when 180 minutes remain before start; exact policy boundary remains subject to group confirmation.",
+      "excel_metadata": {
+        "type": "Boundary",
+        "requirement_ids": "REQ-06",
+        "use_case_ids": "UC-05",
+        "priority": "Must",
+        "preconditions": "Requester owns booking; cancellation occurs 180 minutes before start.",
+        "steps": "Create booking; cancel as owner 180 minutes before start; inspect status.",
+        "expected_result": "Cancelled; resource released",
+        "test_data_id": "TD-TC-11",
+        "test_data_source": "test_data/acceptance_test_data.json → cases.TC-11 (setup/input/expected/assertion; executed in prototype tests)"
+      },
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "student",
+        "resource": "room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Study",
+        "attendees": 1,
+        "bundled_equipment": [],
+        "now_minutes_before_start": 180
+      },
+      "expected": {
+        "status": "Cancelled"
+      },
+      "assertion": "The booking status equals Cancelled after owner cancellation at 180 minutes before start.",
+      "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; policy boundary still requires group confirmation.",
+      "execution_ready": true,
+      "scope": "Python/SQLite prototype only; not target application.",
+      "review_note": "Test proves cancellation at 180 minutes before start only; it does not settle behavior at exactly 120 minutes."
+    },
+    "TC-26": {
+      "data_id": "TD-TC-26",
+      "title": "Booking room with bundled equipment in one request",
+      "purpose": "Verify room and equipment are saved under a single booking ID.",
+      "excel_metadata": {
+        "type": "Positive",
+        "requirement_ids": "REQ-02; SR-16",
+        "use_case_ids": "UC-03",
+        "priority": "Must",
+        "preconditions": "Authenticated; room and equipment available.",
+        "steps": "Select room -> add microphone and speaker to the same request -> submit",
+        "expected_result": "One Pending booking is created containing the room and both equipment items.",
+        "test_data_id": "TD-TC-26",
+        "test_data_source": "test_data/acceptance_test_data.json → cases.TC-26 (setup/input/expected/assertion; executed in prototype tests)"
+      },
+      "setup": {
+        "bookings_before_action": [],
+        "maintenance_resources": []
+      },
+      "input": {
+        "requester": "student",
+        "resource": "room",
+        "start_offset_minutes": 0,
+        "duration_minutes": 60,
+        "purpose": "Practice",
+        "attendees": 6,
+        "bundled_equipment": [
+          "projector"
+        ]
+      },
+      "expected": {
+        "status": "Pending",
+        "booking_item_count": 2,
+        "item_roles": [
+          "PRIMARY",
+          "BUNDLED_EQUIPMENT"
+        ]
+      },
+      "assertion": "Exactly one booking is created with one PRIMARY room item and one BUNDLED_EQUIPMENT item.",
+      "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+      "execution_ready": true,
+      "scope": "Python/SQLite prototype only; not target application."
+    }
+  },
+  "execution_note": "Generated by joining Excel case metadata/Test Data IDs with structured executable parameters in test_case_catalog.json. The workbook's prose-only fields are not by themselves executable input. Only execution_ready cases are emitted. Prototype only."
+}

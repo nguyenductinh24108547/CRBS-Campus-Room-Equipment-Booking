@@ -1,0 +1,3461 @@
+{
+  "metadata": {
+    "project": "Campus Room & Equipment Booking System (CRBS)",
+    "source": "CRBS_Group03_FINAL_RECONCILED.xlsx / TestCases",
+    "case_count": 42,
+    "interpretation": "This is a full export of all 42 designed test cases with proposed parameter definitions. Only 7 tests are currently automated in the package's acceptance suite; other input parameters are drafts, not evidence of execution.",
+    "test_id_convention": "TC-xx and TC-SC-xx are catalogue tests; PT-xx identifies prototype regression tests and is a separate namespace.",
+    "current_run": {
+      "acceptance_command": "python -m pytest tests/test_campus_booking.py -v",
+      "acceptance_result": "7 passed",
+      "regression_command": "python -m unittest discover -s tests -p test_crbs.py -v",
+      "regression_result": "40 passed",
+      "tested_component": "src/crbs.py educational Python/SQLite prototype only",
+      "not_proven": "No current evidence here that the separate group production/target application passed these same tests."
+    },
+    "definition_note": "All 42 catalogued test cases have a data-definition object. Only seven cases have executable input data consumed by tests/test_campus_booking.py. Other cases are draft inputs for future implementation and execution.",
+    "data_schema": "Every one of the 42 catalogued cases now exposes test_data_id, setup, input, expected, assertion, definition_status and execution_ready. Only the seven cases in acceptance_test_data.json are runtime executable in the current test script."
+  },
+  "test_cases": [
+    {
+      "test_case": {
+        "test_case_id": "TC-01",
+        "title": "Booking succeeds for available room",
+        "type": "Positive",
+        "requirements": "REQ-02",
+        "use_cases": "UC-03",
+        "priority": "Must",
+        "preconditions": "Authenticated; room available",
+        "steps": "Search → select slot → submit",
+        "expected_result": "Booking created with Pending",
+        "source_actual_result": "Matches expected result.",
+        "source_status": "Passed",
+        "executed_by": "QA - T. Mai",
+        "executed_date": "2026-03-01",
+        "source_test_code_id": "TST-CODE-01",
+        "teacher_purpose": "Main positive",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Live System Test"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-01",
+        "test_case_id": "TC-01",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-01",
+          "test_case_id": "TC-01",
+          "purpose": "Verify a valid request creates a Pending booking.",
+          "setup": {
+            "bookings_before_action": [],
+            "maintenance_resources": []
+          },
+          "input": {
+            "requester": "student",
+            "resource": "room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 60,
+            "purpose": "Group study",
+            "attendees": 5,
+            "bundled_equipment": []
+          },
+          "expected": {
+            "booking_created": true,
+            "status": "Pending"
+          },
+          "assertion": "The returned booking ID exists and its stored status equals Pending.",
+          "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+          "execution_ready": true,
+          "scope": "Python/SQLite prototype only; not target application."
+        },
+        "data_definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; passed in current prototype run.",
+        "current_evidence_status": "PASS on current package run: Python/SQLite prototype only; not the target/deployed group application.",
+        "note": "Defined in acceptance_test_data.json and consumed by the automated test; prototype only.",
+        "last_run": {
+          "command": "python -m pytest tests/test_campus_booking.py -v",
+          "result": "PASS",
+          "scope": "src/crbs.py educational prototype"
+        }
+      },
+      "current_package_code_ref": "tests/test_campus_booking.py::test_TC01_available_room_booking_creates_pending"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-02",
+        "title": "Booking rejected when slot already confirmed",
+        "type": "Negative",
+        "requirements": "REQ-02; REQ-03",
+        "use_cases": "UC-03",
+        "priority": "Must",
+        "preconditions": "Confirmed booking exists",
+        "steps": "Attempt overlap",
+        "expected_result": "Clear conflict rejection",
+        "source_actual_result": "Passed via automated Pytest execution log (0.02s, 7 passed) - see pytest_output.txt",
+        "source_status": "Passed",
+        "executed_by": "QA Lead / Group 03 (pytest: test_TC02_booking_rejected_when_time_slot_conflicts)",
+        "executed_date": "2026-10-01",
+        "source_test_code_id": "TST-CODE-02",
+        "teacher_purpose": "Conflict/HZ-01",
+        "source_evidence_log": "pytest_output.txt",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Automated Unit Test (TDD reference implementation) - Passed"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-02",
+        "test_case_id": "TC-02",
+        "scenario_ids": [
+          "SC-04"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-02",
+          "test_case_id": "TC-02",
+          "purpose": "Verify the overlap guard prevents a second booking for a conflicting time.",
+          "setup": {
+            "bookings_before_action": [
+              {
+                "requester": "student",
+                "resource": "room",
+                "start_offset_minutes": 0,
+                "duration_minutes": 120,
+                "purpose": "Existing booking",
+                "attendees": 1
+              }
+            ],
+            "maintenance_resources": []
+          },
+          "input": {
+            "requester": "lecturer",
+            "resource": "room",
+            "start_offset_minutes": 30,
+            "duration_minutes": 60,
+            "purpose": "Overlapping booking",
+            "attendees": 1,
+            "bundled_equipment": []
+          },
+          "expected": {
+            "booking_created": false,
+            "error_contains": "not available",
+            "existing_booking_count_after": 1
+          },
+          "assertion": "A CRBSError is raised and no second booking is added.",
+          "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+          "execution_ready": true,
+          "scope": "Python/SQLite prototype only; not target application."
+        },
+        "data_definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; passed in current prototype run.",
+        "current_evidence_status": "PASS on current package run: Python/SQLite prototype only; not the target/deployed group application.",
+        "note": "Defined in acceptance_test_data.json and consumed by the automated test; prototype only.",
+        "last_run": {
+          "command": "python -m pytest tests/test_campus_booking.py -v",
+          "result": "PASS",
+          "scope": "src/crbs.py educational prototype"
+        }
+      },
+      "current_package_code_ref": "tests/test_campus_booking.py::test_TC02_overlapping_room_booking_is_rejected"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-03",
+        "title": "Facility Staff approves pending request",
+        "type": "Positive",
+        "requirements": "REQ-03",
+        "use_cases": "UC-09",
+        "priority": "Must",
+        "preconditions": "Pending exists",
+        "steps": "Open → review → approve",
+        "expected_result": "Confirmed; requester notified",
+        "source_actual_result": "Passed via automated Pytest execution log (0.02s, 7 passed) - see pytest_output.txt",
+        "source_status": "Passed",
+        "executed_by": "QA Lead / Group 03 (pytest: test_TC03_facility_staff_can_approve_booking)",
+        "executed_date": "2026-10-01",
+        "source_test_code_id": "TST-CODE-03",
+        "teacher_purpose": "Approval",
+        "source_evidence_log": "pytest_output.txt",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Automated Unit Test (TDD reference implementation) - Passed"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-03",
+        "test_case_id": "TC-03",
+        "scenario_ids": [
+          "SC-01",
+          "SC-02"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-03",
+          "test_case_id": "TC-03",
+          "purpose": "Verify an authorized Facility Staff user can approve a Pending booking.",
+          "setup": {
+            "bookings_before_action": [
+              {
+                "requester": "student",
+                "resource": "room",
+                "start_offset_minutes": 0,
+                "duration_minutes": 60,
+                "purpose": "Study",
+                "attendees": 1
+              }
+            ],
+            "maintenance_resources": []
+          },
+          "input": {
+            "decision_actor": "facility_staff",
+            "decision": "Approved",
+            "reason": "Checks passed",
+            "booking_ref": "most_recent_setup_booking"
+          },
+          "expected": {
+            "status": "Approved",
+            "notification_count": 2
+          },
+          "assertion": "Booking status becomes Approved and a second notification is recorded.",
+          "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+          "execution_ready": true,
+          "scope": "Python/SQLite prototype only; not target application."
+        },
+        "data_definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; passed in current prototype run.",
+        "current_evidence_status": "PASS on current package run: Python/SQLite prototype only; not the target/deployed group application.",
+        "note": "Defined in acceptance_test_data.json and consumed by the automated test; prototype only.",
+        "last_run": {
+          "command": "python -m pytest tests/test_campus_booking.py -v",
+          "result": "PASS",
+          "scope": "src/crbs.py educational prototype"
+        }
+      },
+      "current_package_code_ref": "tests/test_campus_booking.py::test_TC03_facility_staff_can_approve_pending_booking"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-04",
+        "title": "Search response time within 2s",
+        "type": "Performance",
+        "requirements": "NFR-01",
+        "use_cases": "UC-01",
+        "priority": "Must",
+        "preconditions": "Representative dataset",
+        "steps": "Repeated search; calculate P95",
+        "expected_result": "P95 ≤2 seconds",
+        "source_actual_result": "Source workbook reports P95=0.38s over N=1,000 samples on 2026-03-03; raw benchmark report/environment details are not attached, so this claim is not independently reproducible from the package.",
+        "source_status": "Reported Passed (raw evidence missing)",
+        "executed_by": "QA - D. Anh",
+        "executed_date": "2026-03-03",
+        "source_test_code_id": "TST-CODE-04",
+        "teacher_purpose": "NFR",
+        "source_evidence_log": "Source workbook record only; attach raw benchmark report before treating as verified.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Live System Benchmark - Passed"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-04",
+        "test_case_id": "TC-04",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Quality / NFR verification",
+        "input_parameters": {
+          "test_data_id": "TD-TC-04",
+          "test_case_id": "TC-04",
+          "purpose": "NFR",
+          "setup": {
+            "source_preconditions": "Representative dataset",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "dataset": {
+              "description": "Representative room/equipment catalogue",
+              "record_count": "Not specified in source; define before run"
+            },
+            "sample_count": 1000,
+            "metric": "p95_search_latency_ms",
+            "threshold_ms": 2000,
+            "environment": "REQUIRED_BEFORE_EXECUTION"
+          },
+          "expected": {
+            "p95_ms_max": 2000
+          },
+          "assertion": {
+            "source_expected_result": "P95 ≤2 seconds",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "dataset": {
+              "description": "Representative room/equipment catalogue",
+              "record_count": "Not specified in source; define before run"
+            },
+            "sample_count": 1000,
+            "metric": "p95_search_latency_ms",
+            "threshold_ms": 2000,
+            "environment": "REQUIRED_BEFORE_EXECUTION",
+            "expected": {
+              "p95_ms_max": 2000
+            },
+            "status": "Draft - raw benchmark data/environment missing"
+          },
+          "definition_status": "Benchmark data/environment missing; not independently reproducible.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Benchmark data/environment missing; not independently reproducible.",
+        "current_evidence_status": "Source workbook reports PASS (P95=0.38s, N=1000), but raw benchmark report/environment/input dataset are missing; not independently verified.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null,
+        "review_note": "Benchmark source result lacks raw log, benchmark tool/version, host/runtime, dataset size/content and sample records. Do not assert verified until those exist."
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-05",
+        "title": "Maintenance equipment cannot be booked",
+        "type": "Negative",
+        "requirements": "REQ-07",
+        "use_cases": "UC-01, UC-03, UC-13",
+        "priority": "Must",
+        "preconditions": "Equipment item (e.g., JBL Speaker) status is 'Under Maintenance'",
+        "steps": "Attempt to create a booking selecting equipment marked 'Under Maintenance'",
+        "expected_result": "Booking is rejected with clear error message (Equipment is under maintenance)",
+        "source_actual_result": "Passed via automated Pytest execution log (0.02s, 7 passed) - see pytest_output.txt (raises ValueError \"REQ-07 Violated: Equipment JBL Speaker is under maintenance\")",
+        "source_status": "Passed",
+        "executed_by": "QA Lead / Group 03 (pytest: test_TC05_equipment_under_maintenance_cannot_be_booked)",
+        "executed_date": "2026-10-01",
+        "source_test_code_id": "TST-CODE-05",
+        "teacher_purpose": "Hazard; open defect",
+        "source_evidence_log": "pytest_output.txt",
+        "defect_id": "DEF-01",
+        "retest_id": "RETEST-TC-05",
+        "actual_owner_decision": null,
+        "verification_mode": "Automated Unit Test (TDD reference implementation) - Passed"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-05",
+        "test_case_id": "TC-05",
+        "scenario_ids": [
+          "SC-03"
+        ],
+        "module": "Equipment and maintenance",
+        "input_parameters": {
+          "test_data_id": "TD-TC-05",
+          "test_case_id": "TC-05",
+          "purpose": "Verify equipment in maintenance blocks a room-plus-equipment request.",
+          "setup": {
+            "bookings_before_action": [],
+            "maintenance_resources": [
+              {
+                "resource": "projector",
+                "description": "Lamp broken"
+              }
+            ]
+          },
+          "input": {
+            "requester": "student",
+            "resource": "room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 60,
+            "purpose": "Practice",
+            "attendees": 6,
+            "bundled_equipment": [
+              "projector"
+            ]
+          },
+          "expected": {
+            "booking_created": false,
+            "error_contains": "under maintenance",
+            "booking_count_after": 0
+          },
+          "assertion": "The booking operation fails before any booking record is created.",
+          "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+          "execution_ready": true,
+          "scope": "Python/SQLite prototype only; not target application."
+        },
+        "data_definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; passed in current prototype run.",
+        "current_evidence_status": "PASS on current package run: Python/SQLite prototype only; not the target/deployed group application.",
+        "note": "Defined in acceptance_test_data.json and consumed by the automated test; prototype only.",
+        "last_run": {
+          "command": "python -m pytest tests/test_campus_booking.py -v",
+          "result": "PASS",
+          "scope": "src/crbs.py educational prototype"
+        }
+      },
+      "current_package_code_ref": "tests/test_campus_booking.py::test_TC05_maintenance_equipment_cannot_be_booked"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-06",
+        "title": "Student blocked from VIP/restricted room",
+        "type": "Security",
+        "requirements": "REQ-09",
+        "use_cases": "UC-03",
+        "priority": "Must",
+        "preconditions": "Student logged in",
+        "steps": "Attempt restricted booking",
+        "expected_result": "Access denied/logged",
+        "source_actual_result": "Passed via automated Pytest execution log (0.02s, 7 passed) - see pytest_output.txt",
+        "source_status": "Passed",
+        "executed_by": "QA Lead / Group 03 (pytest: test_TC06_student_cannot_book_vip_room)",
+        "executed_date": "2026-10-01",
+        "source_test_code_id": "TST-CODE-06",
+        "teacher_purpose": "RBAC/HZ-03",
+        "source_evidence_log": "pytest_output.txt",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Automated Unit Test (TDD reference implementation) - Passed"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-06",
+        "test_case_id": "TC-06",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Authentication, roles and permissions",
+        "input_parameters": {
+          "test_data_id": "TD-TC-06",
+          "test_case_id": "TC-06",
+          "purpose": "Verify a Student cannot book a restricted room outside the allow-list.",
+          "setup": {
+            "bookings_before_action": [],
+            "maintenance_resources": []
+          },
+          "input": {
+            "requester": "student",
+            "resource": "vip_room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 60,
+            "purpose": "Research",
+            "attendees": 2,
+            "bundled_equipment": []
+          },
+          "expected": {
+            "booking_created": false,
+            "error_contains": "restricted",
+            "booking_count_after": 0
+          },
+          "assertion": "Authorization is denied and no booking record is created.",
+          "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+          "execution_ready": true,
+          "scope": "Python/SQLite prototype only; not target application."
+        },
+        "data_definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; passed in current prototype run.",
+        "current_evidence_status": "PASS on current package run: Python/SQLite prototype only; not the target/deployed group application.",
+        "note": "Defined in acceptance_test_data.json and consumed by the automated test; prototype only.",
+        "last_run": {
+          "command": "python -m pytest tests/test_campus_booking.py -v",
+          "result": "PASS",
+          "scope": "src/crbs.py educational prototype"
+        }
+      },
+      "current_package_code_ref": "tests/test_campus_booking.py::test_TC06_student_cannot_book_restricted_vip_room"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-07",
+        "title": "Search excludes overlapping confirmed resource",
+        "type": "Positive",
+        "requirements": "REQ-01",
+        "use_cases": "UC-01",
+        "priority": "Must",
+        "preconditions": "One overlapping; one free",
+        "steps": "Search exact slot",
+        "expected_result": "Only free resource is bookable",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-07",
+        "teacher_purpose": "Direct REQ-01",
+        "source_evidence_log": "Per REQ-01, search excludes any resource with a confirmed overlapping booking by construction of the query filter; the free resource remains the only bookable result.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-07",
+        "test_case_id": "TC-07",
+        "scenario_ids": [
+          "SC-04"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-07",
+          "test_case_id": "TC-07",
+          "purpose": "Direct REQ-01",
+          "setup": {
+            "source_preconditions": "One overlapping; one free",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "resources": [
+              {
+                "key": "room_busy",
+                "name": "A101",
+                "active": true,
+                "capacity": 30,
+                "existing_booking": {
+                  "start": "14:00",
+                  "end": "16:00",
+                  "status": "Approved"
+                }
+              },
+              {
+                "key": "room_free",
+                "name": "A102",
+                "active": true,
+                "capacity": 30,
+                "existing_booking": null
+              }
+            ],
+            "search_slot": {
+              "start": "15:00",
+              "end": "16:00"
+            }
+          },
+          "expected": {
+            "room_busy_excluded": true,
+            "room_free_included": true
+          },
+          "assertion": {
+            "source_expected_result": "Only free resource is bookable",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "resources": [
+              {
+                "key": "room_busy",
+                "name": "A101",
+                "active": true,
+                "capacity": 30,
+                "existing_booking": {
+                  "start": "14:00",
+                  "end": "16:00",
+                  "status": "Approved"
+                }
+              },
+              {
+                "key": "room_free",
+                "name": "A102",
+                "active": true,
+                "capacity": 30,
+                "existing_booking": null
+              }
+            ],
+            "search_slot": {
+              "start": "15:00",
+              "end": "16:00"
+            },
+            "expected": {
+              "room_busy_excluded": true,
+              "room_free_included": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-08",
+        "title": "Invalid search criteria rejected",
+        "type": "Negative",
+        "requirements": "REQ-01",
+        "use_cases": "UC-01",
+        "priority": "Must",
+        "preconditions": "Authenticated",
+        "steps": "Submit invalid criteria",
+        "expected_result": "Validation error",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-08",
+        "teacher_purpose": "Exception flow",
+        "source_evidence_log": "Per SR-01 (search input validation), the search form requires date, time and resource type before dispatch; an incomplete/invalid submission is blocked client- and server-side with a validation message.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-08",
+        "test_case_id": "TC-08",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-08",
+          "test_case_id": "TC-08",
+          "purpose": "Exception flow",
+          "setup": {
+            "source_preconditions": "Authenticated",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "search": {
+              "resource_type": "Room",
+              "start": "2026-10-20T16:00",
+              "end": "2026-10-20T15:00",
+              "min_capacity": 1
+            }
+          },
+          "expected": {
+            "rejected": true,
+            "error": "End time must be later than start time"
+          },
+          "assertion": {
+            "source_expected_result": "Validation error",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "search": {
+              "resource_type": "Room",
+              "start": "2026-10-20T16:00",
+              "end": "2026-10-20T15:00",
+              "min_capacity": 1
+            },
+            "expected": {
+              "rejected": true,
+              "error": "End time must be later than start time"
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-09",
+        "title": "View resource availability",
+        "type": "Positive",
+        "requirements": "REQ-01",
+        "use_cases": "UC-02",
+        "priority": "High",
+        "preconditions": "Resource exists",
+        "steps": "Open resource schedule",
+        "expected_result": "Correct availability displayed",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-09",
+        "teacher_purpose": "UC coverage",
+        "source_evidence_log": "Per UC-02 main flow, resource detail retrieval reads directly from the current schedule, so the displayed availability matches the underlying booking records at request time.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-09",
+        "test_case_id": "TC-09",
+        "scenario_ids": [
+          "SC-01",
+          "SC-02"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-09",
+          "test_case_id": "TC-09",
+          "purpose": "UC coverage",
+          "setup": {
+            "source_preconditions": "Resource exists",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "user": {
+              "role": "Student"
+            },
+            "resource": {
+              "name": "A101",
+              "kind": "Room",
+              "capacity": 30,
+              "active": true
+            },
+            "booking": {
+              "start": "2026-10-20T14:00",
+              "end": "2026-10-20T16:00",
+              "status": "Approved"
+            }
+          },
+          "expected": {
+            "displayed_state": "Reserved/Unavailable during slot",
+            "must_match_database": true
+          },
+          "assertion": {
+            "source_expected_result": "Correct availability displayed",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "user": {
+              "role": "Student"
+            },
+            "resource": {
+              "name": "A101",
+              "kind": "Room",
+              "capacity": 30,
+              "active": true
+            },
+            "booking": {
+              "start": "2026-10-20T14:00",
+              "end": "2026-10-20T16:00",
+              "status": "Approved"
+            },
+            "expected": {
+              "displayed_state": "Reserved/Unavailable during slot",
+              "must_match_database": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-10",
+        "title": "Booking missing required data rejected",
+        "type": "Negative",
+        "requirements": "REQ-02",
+        "use_cases": "UC-03",
+        "priority": "Must",
+        "preconditions": "Authenticated; resource available",
+        "steps": "Leave required field empty → submit",
+        "expected_result": "Validation error; no booking",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-10",
+        "teacher_purpose": "Input validation",
+        "source_evidence_log": "Per SR-03 (booking information validation), the booking form enforces required fields (resource, date, start/end time, purpose) before a request can be created; a missing field halts submission with a validation error.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-10",
+        "test_case_id": "TC-10",
+        "scenario_ids": [
+          "SC-01",
+          "SC-02"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-10",
+          "test_case_id": "TC-10",
+          "purpose": "Input validation",
+          "setup": {
+            "source_preconditions": "Authenticated; resource available",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "booking_input": {
+              "resource": "A101",
+              "start": "2026-10-20T14:00",
+              "end": "2026-10-20T16:00",
+              "purpose": "",
+              "attendees": 6
+            }
+          },
+          "expected": {
+            "booking_created": false,
+            "validation_error": true
+          },
+          "assertion": {
+            "source_expected_result": "Validation error; no booking",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "booking_input": {
+              "resource": "A101",
+              "start": "2026-10-20T14:00",
+              "end": "2026-10-20T16:00",
+              "purpose": "",
+              "attendees": 6
+            },
+            "expected": {
+              "booking_created": false,
+              "validation_error": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-11",
+        "title": "Owner can cancel more than two hours before start",
+        "type": "Boundary",
+        "requirements": "REQ-06",
+        "use_cases": "UC-05",
+        "priority": "Must",
+        "preconditions": "Requester owns the booking; cancellation occurs 180 minutes before start.",
+        "steps": "Create the booking; cancel as its owner with now_minutes_before_start=180; inspect final status.",
+        "expected_result": "Booking status is Cancelled.",
+        "source_actual_result": "Prototype test confirms cancellation at 180 minutes before start.",
+        "source_status": "Passed",
+        "executed_by": "QA Lead / Group 03 (pytest: test_TC11_cancel_booking_success_more_than_2h_before)",
+        "executed_date": "2026-10-01",
+        "source_test_code_id": "TST-CODE-11",
+        "teacher_purpose": "Boundary",
+        "source_evidence_log": "pytest_output.txt",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Automated Unit Test (TDD reference implementation) - Passed"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-11",
+        "test_case_id": "TC-11",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Booking status and cancellation",
+        "input_parameters": {
+          "test_data_id": "TD-TC-11",
+          "test_case_id": "TC-11",
+          "purpose": "Verify owner cancellation succeeds when 180 minutes remain before start; exact policy boundary remains subject to group confirmation.",
+          "setup": {
+            "bookings_before_action": [],
+            "maintenance_resources": []
+          },
+          "input": {
+            "requester": "student",
+            "resource": "room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 60,
+            "purpose": "Study",
+            "attendees": 1,
+            "bundled_equipment": [],
+            "now_minutes_before_start": 180
+          },
+          "expected": {
+            "status": "Cancelled"
+          },
+          "assertion": "The booking status equals Cancelled after owner cancellation at 180 minutes before start.",
+          "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; policy boundary still requires group confirmation.",
+          "execution_ready": true,
+          "scope": "Python/SQLite prototype only; not target application.",
+          "review_note": "Test proves cancellation at 180 minutes before start only; it does not settle behavior at exactly 120 minutes."
+        },
+        "data_definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; passed in current prototype run.",
+        "current_evidence_status": "PASS on current package run: Python/SQLite prototype only; not the target/deployed group application.",
+        "note": "Defined in acceptance_test_data.json and consumed by the automated test; prototype only.",
+        "last_run": {
+          "command": "python -m pytest tests/test_campus_booking.py -v",
+          "result": "PASS",
+          "scope": "src/crbs.py educational prototype"
+        },
+        "review_note": "Potential naming mismatch: source test title says “Cancellation within 2-hour rule”, but the runnable JSON tests the allowed boundary at 180 minutes before start. Confirm intended boundary and rename/adjust test only after team decision."
+      },
+      "current_package_code_ref": "tests/test_campus_booking.py::test_TC11_owner_can_cancel_more_than_two_hours_before_start"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-12",
+        "title": "Cancellation too late rejected",
+        "type": "Negative/Boundary",
+        "requirements": "REQ-06",
+        "use_cases": "UC-05",
+        "priority": "Must",
+        "preconditions": "Start <2h",
+        "steps": "Cancel",
+        "expected_result": "Cancellation rejected",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-12",
+        "teacher_purpose": "Boundary",
+        "source_evidence_log": "Per SR-10 (two-hour boundary), a cancellation attempted with less than 2 hours remaining is rejected by the same time-delta check used in TC-11, returning a boundary-violation message instead of cancelling.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-12",
+        "test_case_id": "TC-12",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Booking status and cancellation",
+        "input_parameters": {
+          "test_data_id": "TD-TC-12",
+          "test_case_id": "TC-12",
+          "purpose": "Boundary",
+          "setup": {
+            "source_preconditions": "Start <2h",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "booking": {
+              "owner": "student",
+              "start_offset_minutes": 0,
+              "duration_minutes": 60,
+              "status": "Pending"
+            },
+            "cancellation": {
+              "now_minutes_before_start": 119
+            }
+          },
+          "expected": {
+            "cancelled": false,
+            "error_contains": "at least 2 hours"
+          },
+          "assertion": {
+            "source_expected_result": "Cancellation rejected",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "booking": {
+              "owner": "student",
+              "start_offset_minutes": 0,
+              "duration_minutes": 60,
+              "status": "Pending"
+            },
+            "cancellation": {
+              "now_minutes_before_start": 119
+            },
+            "expected": {
+              "cancelled": false,
+              "error_contains": "at least 2 hours"
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-13",
+        "title": "View booking status",
+        "type": "Positive",
+        "requirements": "REQ-02; REQ-10",
+        "use_cases": "UC-04",
+        "priority": "High",
+        "preconditions": "Booking owned",
+        "steps": "Open status",
+        "expected_result": "Accurate current state",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-13",
+        "teacher_purpose": "UC coverage",
+        "source_evidence_log": "Per UC-04, the booking-status view queries only bookings owned by the current session user and renders their current status field, so an owned booking's state is displayed accurately.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-13",
+        "test_case_id": "TC-13",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Booking status and cancellation",
+        "input_parameters": {
+          "test_data_id": "TD-TC-13",
+          "test_case_id": "TC-13",
+          "purpose": "UC coverage",
+          "setup": {
+            "source_preconditions": "Booking owned",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "booking": {
+              "id": "BKG-001",
+              "owner": "student",
+              "status": "Pending"
+            },
+            "viewer": "student"
+          },
+          "expected": {
+            "booking_visible": true,
+            "state_matches_record": true
+          },
+          "assertion": {
+            "source_expected_result": "Accurate current state",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "booking": {
+              "id": "BKG-001",
+              "owner": "student",
+              "status": "Pending"
+            },
+            "viewer": "student",
+            "expected": {
+              "booking_visible": true,
+              "state_matches_record": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-14",
+        "title": "Status change notification",
+        "type": "Positive",
+        "requirements": "REQ-10",
+        "use_cases": "UC-06",
+        "priority": "Medium",
+        "preconditions": "Status changes",
+        "steps": "Approve/reject/cancel → observe",
+        "expected_result": "Notification delivered/queued",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-14",
+        "teacher_purpose": "Notification",
+        "source_evidence_log": "Per REQ-10/SR-15, every status transition (approve/reject/cancel) triggers the notification step before completing the transaction; if the primary channel is unavailable, SR-15 requires a retry/fallback rather than silently dropping the notification.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-14",
+        "test_case_id": "TC-14",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Notifications",
+        "input_parameters": {
+          "test_data_id": "TD-TC-14",
+          "test_case_id": "TC-14",
+          "purpose": "Notification",
+          "setup": {
+            "source_preconditions": "Status changes",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "event": {
+              "type": "BookingDecision",
+              "decision": "Approved",
+              "booking_id": "BKG-001"
+            },
+            "notification_provider": "unavailable"
+          },
+          "expected": {
+            "core_state_committed": true,
+            "notification_status": "Retry/Queued"
+          },
+          "assertion": {
+            "source_expected_result": "Notification delivered/queued",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "event": {
+              "type": "BookingDecision",
+              "decision": "Approved",
+              "booking_id": "BKG-001"
+            },
+            "notification_provider": "unavailable",
+            "expected": {
+              "core_state_committed": true,
+              "notification_status": "Retry/Queued"
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-15",
+        "title": "Lecturer teaching booking",
+        "type": "Positive",
+        "requirements": "REQ-02; REQ-03",
+        "use_cases": "UC-07",
+        "priority": "High",
+        "preconditions": "Lecturer; resource available",
+        "steps": "Teaching purpose → submit",
+        "expected_result": "Pending created",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-15",
+        "teacher_purpose": "Lecturer",
+        "source_evidence_log": "Per UC-07, a Lecturer-initiated request follows the same validated submission path as UC-03 with 'teaching' recorded as the purpose, so it is expected to reach Pending under the same conflict-check logic already verified in TC-01.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-15",
+        "test_case_id": "TC-15",
+        "scenario_ids": [
+          "SC-01"
+        ],
+        "module": "Lecturer booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-15",
+          "test_case_id": "TC-15",
+          "purpose": "Lecturer",
+          "setup": {
+            "source_preconditions": "Lecturer; resource available",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "requester": {
+              "role": "Lecturer",
+              "key": "lecturer"
+            },
+            "resource": "A101",
+            "attendees": 25,
+            "start_offset_days": 2,
+            "start_hour": 14,
+            "duration_minutes": 120
+          },
+          "expected": {
+            "state": "Pending Staff Approval"
+          },
+          "assertion": {
+            "source_expected_result": "Pending created",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "requester": {
+              "role": "Lecturer",
+              "key": "lecturer"
+            },
+            "resource": "A101",
+            "purpose": "Make-up class",
+            "attendees": 25,
+            "start_offset_days": 2,
+            "start_hour": 14,
+            "duration_minutes": 120,
+            "expected": {
+              "state": "Pending Staff Approval"
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-16",
+        "title": "Lecturer seminar/official booking",
+        "type": "Positive",
+        "requirements": "REQ-02; REQ-03",
+        "use_cases": "UC-08",
+        "priority": "Medium",
+        "preconditions": "Lecturer",
+        "steps": "Seminar purpose → submit",
+        "expected_result": "Pending created",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-16",
+        "teacher_purpose": "Lecturer",
+        "source_evidence_log": "Per UC-08/NFR-D10, a seminar request follows the same path as UC-07 but is additionally bounded by the 4-hour maximum duration rule (CR-02); a request within that limit is expected to reach Pending.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-16",
+        "test_case_id": "TC-16",
+        "scenario_ids": [
+          "SC-01"
+        ],
+        "module": "Lecturer booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-16",
+          "test_case_id": "TC-16",
+          "purpose": "Lecturer",
+          "setup": {
+            "source_preconditions": "Lecturer",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "requester": {
+              "role": "Lecturer",
+              "key": "lecturer"
+            },
+            "resource": "Seminar Hall",
+            "attendees": 40,
+            "start_offset_days": 2,
+            "start_hour": 9,
+            "duration_minutes": 240
+          },
+          "expected": {
+            "booking_created": true,
+            "state": "Pending"
+          },
+          "assertion": {
+            "source_expected_result": "Pending created",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "requester": {
+              "role": "Lecturer",
+              "key": "lecturer"
+            },
+            "resource": "Seminar Hall",
+            "purpose": "Official seminar",
+            "attendees": 40,
+            "start_offset_days": 2,
+            "start_hour": 9,
+            "duration_minutes": 240,
+            "expected": {
+              "booking_created": true,
+              "state": "Pending"
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-17",
+        "title": "Approval re-validates slot",
+        "type": "Negative/Race",
+        "requirements": "REQ-03",
+        "use_cases": "UC-09",
+        "priority": "Must",
+        "preconditions": "Slot becomes unavailable before approval",
+        "steps": "Approve after competing booking",
+        "expected_result": "Approval blocked; no double booking",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-17",
+        "teacher_purpose": "HZ-01",
+        "source_evidence_log": "Per SR-05 (conflict re-check), approval re-validates availability immediately before confirming; if a competing booking was confirmed in the interim, the re-check is expected to block the approval rather than allow a double booking.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-17",
+        "test_case_id": "TC-17",
+        "scenario_ids": [
+          "SC-04"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-17",
+          "test_case_id": "TC-17",
+          "purpose": "HZ-01",
+          "setup": {
+            "source_preconditions": "Slot becomes unavailable before approval",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "booking": {
+              "id": "BKG-001",
+              "state": "Pending Staff Approval",
+              "resource": "A101",
+              "start": "14:00",
+              "end": "16:00"
+            },
+            "intervening_change": "Resource becomes unavailable or conflicts before approval",
+            "action": "Facility Staff approves"
+          },
+          "expected": {
+            "approved": false,
+            "reason": "Resource no longer available",
+            "note": "Must run on target implementation; prototype reservation semantics may prevent this exact sequence"
+          },
+          "assertion": {
+            "source_expected_result": "Approval blocked; no double booking",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "booking": {
+              "id": "BKG-001",
+              "state": "Pending Staff Approval",
+              "resource": "A101",
+              "start": "14:00",
+              "end": "16:00"
+            },
+            "intervening_change": "Resource becomes unavailable or conflicts before approval",
+            "action": "Facility Staff approves",
+            "expected": {
+              "approved": false,
+              "reason": "Resource no longer available",
+              "note": "Must run on target implementation; prototype reservation semantics may prevent this exact sequence"
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-18",
+        "title": "Audit log immutable",
+        "type": "Security/Inspection",
+        "requirements": "REQ-08",
+        "use_cases": "Cross-cutting",
+        "priority": "Must",
+        "preconditions": "Audit record exists",
+        "steps": "Attempt update/delete",
+        "expected_result": "Modification blocked; event logged",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-18",
+        "teacher_purpose": "Teacher completeness",
+        "source_evidence_log": "Per SR-12/NFR-D07 (audit immutability), the audit store is specified as append-only with no update/delete operation exposed at the API layer, so an attempted modification is expected to be rejected.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-18",
+        "test_case_id": "TC-18",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Audit log",
+        "input_parameters": {
+          "test_data_id": "TD-TC-18",
+          "test_case_id": "TC-18",
+          "purpose": "Teacher completeness",
+          "setup": {
+            "source_preconditions": "Audit record exists",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "audit_event": {
+              "id": "AUD-001",
+              "action": "BOOKING_SUBMITTED",
+              "entity": "Booking"
+            },
+            "attempts": [
+              "UPDATE",
+              "DELETE"
+            ]
+          },
+          "expected": {
+            "both_operations_blocked": true,
+            "original_event_unchanged": true
+          },
+          "assertion": {
+            "source_expected_result": "Modification blocked; event logged",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "audit_event": {
+              "id": "AUD-001",
+              "action": "BOOKING_SUBMITTED",
+              "entity": "Booking"
+            },
+            "attempts": [
+              "UPDATE",
+              "DELETE"
+            ],
+            "expected": {
+              "both_operations_blocked": true,
+              "original_event_unchanged": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-19",
+        "title": "Unauthorized approval blocked",
+        "type": "Security",
+        "requirements": "REQ-09",
+        "use_cases": "UC-09",
+        "priority": "Must",
+        "preconditions": "Student/Lecturer token",
+        "steps": "Call approval action",
+        "expected_result": "403/authorization error; no state change",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-19",
+        "teacher_purpose": "Server RBAC",
+        "source_evidence_log": "Per SR-13/NFR-D05 (server-side RBAC), role checks are specified to run on the server for every state-changing endpoint, independent of the UI; a Student/Lecturer token calling the approval endpoint directly is expected to be rejected with 403.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-19",
+        "test_case_id": "TC-19",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Authentication, roles and permissions",
+        "input_parameters": {
+          "test_data_id": "TD-TC-19",
+          "test_case_id": "TC-19",
+          "purpose": "Server RBAC",
+          "setup": {
+            "source_preconditions": "Student/Lecturer token",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "actor": {
+              "role": "Student"
+            },
+            "booking": {
+              "id": "BKG-001",
+              "state": "Pending"
+            },
+            "action": "Approve"
+          },
+          "expected": {
+            "authorized": false,
+            "state_unchanged": true
+          },
+          "assertion": {
+            "source_expected_result": "403/authorization error; no state change",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "actor": {
+              "role": "Student"
+            },
+            "booking": {
+              "id": "BKG-001",
+              "state": "Pending"
+            },
+            "action": "Approve",
+            "expected": {
+              "authorized": false,
+              "state_unchanged": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-20",
+        "title": "VIP allow-list enforced",
+        "type": "Security",
+        "requirements": "REQ-09",
+        "use_cases": "UC-01/UC-03",
+        "priority": "Must",
+        "preconditions": "Not allow-listed",
+        "steps": "Search/book restricted resource",
+        "expected_result": "Not exposed/bookable; denied attempt logged",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-20",
+        "teacher_purpose": "HZ-03",
+        "source_evidence_log": "Per SR-14/NFR-D06 (restricted-resource allow-list), VIP/restricted resources are excluded from search results and booking for accounts not on the allow-list, and the denied attempt is expected to be logged per REQ-08.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-20",
+        "test_case_id": "TC-20",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Authentication, roles and permissions",
+        "input_parameters": {
+          "test_data_id": "TD-TC-20",
+          "test_case_id": "TC-20",
+          "purpose": "HZ-03",
+          "setup": {
+            "source_preconditions": "Not allow-listed",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "resource": {
+              "name": "VIP Lab",
+              "restricted": true,
+              "allowed_roles": [
+                "Lecturer",
+                "Facility Staff",
+                "System Admin"
+              ]
+            },
+            "actor": {
+              "role": "Student"
+            },
+            "actions": [
+              "Search",
+              "Book"
+            ]
+          },
+          "expected": {
+            "resource_not_disclosed": true,
+            "booking_denied": true
+          },
+          "assertion": {
+            "source_expected_result": "Not exposed/bookable; denied attempt logged",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "resource": {
+              "name": "VIP Lab",
+              "restricted": true,
+              "allowed_roles": [
+                "Lecturer",
+                "Facility Staff",
+                "System Admin"
+              ]
+            },
+            "actor": {
+              "role": "Student"
+            },
+            "actions": [
+              "Search",
+              "Book"
+            ],
+            "expected": {
+              "resource_not_disclosed": true,
+              "booking_denied": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-21",
+        "title": "Availability analysis",
+        "type": "Analysis",
+        "requirements": "NFR-02",
+        "use_cases": "Cross-cutting",
+        "priority": "Must",
+        "preconditions": "Uptime logs",
+        "steps": "Calculate operating-hour uptime",
+        "expected_result": "≥99.0%",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-21",
+        "teacher_purpose": "NFR",
+        "source_evidence_log": "Per NFR-02, availability is defined as uptime during official operating hours; this metric is an analysis over operational logs rather than a one-off functional test and is expected to meet >=99.0% based on the specified deployment redundancy.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-21",
+        "test_case_id": "TC-21",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Quality / NFR verification",
+        "input_parameters": {
+          "test_data_id": "TD-TC-21",
+          "test_case_id": "TC-21",
+          "purpose": "NFR",
+          "setup": {
+            "source_preconditions": "Uptime logs",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "measurement_window_days": 30,
+            "metric": "operating_hours_uptime_percent",
+            "threshold_percent": 99.0,
+            "raw_logs": "REQUIRED_BEFORE_EXECUTION"
+          },
+          "expected": {
+            "uptime_percent_min": 99.0
+          },
+          "assertion": {
+            "source_expected_result": "≥99.0%",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "measurement_window_days": 30,
+            "metric": "operating_hours_uptime_percent",
+            "threshold_percent": 99.0,
+            "raw_logs": "REQUIRED_BEFORE_EXECUTION",
+            "expected": {
+              "uptime_percent_min": 99.0
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-22",
+        "title": "PII encryption inspection",
+        "type": "Inspection",
+        "requirements": "NFR-03",
+        "use_cases": "Cross-cutting",
+        "priority": "Must",
+        "preconditions": "Build/config",
+        "steps": "Inspect storage/transport",
+        "expected_result": "100% PII encrypted; AES-256/TLS1.2+",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-22",
+        "teacher_purpose": "NFR",
+        "source_evidence_log": "Per NFR-03/DR specification, PII and credential fields are specified to use AES-256 at rest and TLS 1.2+ in transit; this is a configuration/code inspection item rather than a runtime test and is expected to pass against that specification.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-22",
+        "test_case_id": "TC-22",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Quality / NFR verification",
+        "input_parameters": {
+          "test_data_id": "TD-TC-22",
+          "test_case_id": "TC-22",
+          "purpose": "NFR",
+          "setup": {
+            "source_preconditions": "Build/config",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "checks": {
+              "transport_min_tls": "1.2",
+              "plaintext_passwords_allowed": false,
+              "sensitive_data_in_logs_allowed": false
+            }
+          },
+          "expected": {
+            "all_checks_pass": true
+          },
+          "assertion": {
+            "source_expected_result": "100% PII encrypted; AES-256/TLS1.2+",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "scope": [
+              "PII storage",
+              "network transport",
+              "password storage",
+              "application logs"
+            ],
+            "checks": {
+              "transport_min_tls": "1.2",
+              "plaintext_passwords_allowed": false,
+              "sensitive_data_in_logs_allowed": false
+            },
+            "expected": {
+              "all_checks_pass": true
+            },
+            "note": "At-rest algorithm/key management must follow campus-approved policy"
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-23",
+        "title": "First-time usability demonstration",
+        "type": "Demonstration",
+        "requirements": "NFR-04",
+        "use_cases": "UC-01–UC-03",
+        "priority": "Should",
+        "preconditions": "First-time user",
+        "steps": "Complete booking unaided",
+        "expected_result": "≤3 min",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-23",
+        "teacher_purpose": "NFR",
+        "source_evidence_log": "Per NFR-D02 (<=4-step first-time flow) and NFR-04, the search-to-booking flow is specified as criteria -> results -> slot -> submit, i.e. 4 steps, which is expected to satisfy the <=3-minute first-time-user target.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-23",
+        "test_case_id": "TC-23",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Quality / NFR verification",
+        "input_parameters": {
+          "test_data_id": "TD-TC-23",
+          "test_case_id": "TC-23",
+          "purpose": "NFR",
+          "setup": {
+            "source_preconditions": "First-time user",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "participants": 5,
+            "first_time_users": true,
+            "training_minutes": 30,
+            "max_task_seconds": 180,
+            "min_successful_participants": 4,
+            "task": "Submit a valid booking request without assistance"
+          },
+          "expected": {
+            "successes_min": 4,
+            "elapsed_seconds_max": 180
+          },
+          "assertion": {
+            "source_expected_result": "≤3 min",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "participants": 5,
+            "first_time_users": true,
+            "training_minutes": 30,
+            "max_task_seconds": 180,
+            "min_successful_participants": 4,
+            "task": "Submit a valid booking request without assistance",
+            "expected": {
+              "successes_min": 4,
+              "elapsed_seconds_max": 180
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-24",
+        "title": "Growth/load capacity",
+        "type": "Load Test",
+        "requirements": "NFR-05",
+        "use_cases": "UC-03",
+        "priority": "Should",
+        "preconditions": "Load environment",
+        "steps": "Run ≥3x current concurrent volume",
+        "expected_result": "Target supported",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-24",
+        "teacher_purpose": "NFR",
+        "source_evidence_log": "Per NFR-05, the architecture is specified to support 3x current concurrent volume without structural change; this is a load-test item that is expected to pass based on the stateless request-handling design, pending an actual load-test run.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-24",
+        "test_case_id": "TC-24",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Quality / NFR verification",
+        "input_parameters": {
+          "test_data_id": "TD-TC-24",
+          "test_case_id": "TC-24",
+          "purpose": "NFR",
+          "setup": {
+            "source_preconditions": "Load environment",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "load_multiplier": 3,
+            "baseline_concurrent_transactions": "MUST_BE_MEASURED/AGREED",
+            "duration": "Record test duration",
+            "environment": "Target-like load environment required"
+          },
+          "expected": {
+            "target_volume_supported": true
+          },
+          "assertion": {
+            "source_expected_result": "Target supported",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "load_multiplier": 3,
+            "baseline_concurrent_transactions": "MUST_BE_MEASURED/AGREED",
+            "duration": "Record test duration",
+            "environment": "Target-like load environment required",
+            "expected": {
+              "target_volume_supported": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-25",
+        "title": "Login rejected with invalid credentials",
+        "type": "Security",
+        "requirements": "REQ-11",
+        "use_cases": "UC-16",
+        "priority": "Must",
+        "preconditions": "A registered user account exists.",
+        "steps": "Enter an incorrect password -> submit login form",
+        "expected_result": "Login rejected; no session created.",
+        "source_actual_result": "Verified by design walkthrough. | Related automated test exists (test_TC01_unauthenticated_user_booking_fails, Passed) but covers a different scenario (no login at all on the booking action) than this TC (invalid password at the login screen). Status NOT changed - still requires its own execution/walkthrough evidence.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-25",
+        "teacher_purpose": "Direct REQ-11",
+        "source_evidence_log": "Per REQ-11, invalid credentials are specified to be rejected without creating a session, with lockout after 5 consecutive failures; the login flow is expected to reject the attempt accordingly.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-25",
+        "test_case_id": "TC-25",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Authentication, roles and permissions",
+        "input_parameters": {
+          "test_data_id": "TD-TC-25",
+          "test_case_id": "TC-25",
+          "purpose": "Direct REQ-11",
+          "setup": {
+            "source_preconditions": "A registered user account exists.",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "account": {
+              "email": "student@example.edu",
+              "exists": true,
+              "active": true
+            },
+            "password": "deliberately-wrong-password"
+          },
+          "expected": {
+            "login_success": false,
+            "session_created": false
+          },
+          "assertion": {
+            "source_expected_result": "Login rejected; no session created.",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "account": {
+              "email": "student@example.edu",
+              "exists": true,
+              "active": true
+            },
+            "password": "deliberately-wrong-password",
+            "expected": {
+              "login_success": false,
+              "session_created": false
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-26",
+        "title": "Booking room with bundled equipment in one request",
+        "type": "Positive",
+        "requirements": "REQ-02; SR-16",
+        "use_cases": "UC-03",
+        "priority": "Must",
+        "preconditions": "Authenticated; room and equipment available.",
+        "steps": "Select room -> add microphone and speaker to the same request -> submit",
+        "expected_result": "One Pending booking is created containing the room and both equipment items.",
+        "source_actual_result": "Passed via automated Pytest execution log (0.02s, 7 passed) - see pytest_output.txt",
+        "source_status": "Passed",
+        "executed_by": "QA Lead / Group 03 (pytest: test_TC26_booking_room_with_bundled_equipment_success)",
+        "executed_date": "2026-10-01",
+        "source_test_code_id": "TST-CODE-26",
+        "teacher_purpose": "Direct SR-16 / HZ-04",
+        "source_evidence_log": "pytest_output.txt",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after execution",
+        "verification_mode": "Automated Unit Test (TDD reference implementation) - Passed"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-26",
+        "test_case_id": "TC-26",
+        "scenario_ids": [
+          "SC-01",
+          "SC-02"
+        ],
+        "module": "Resource search and booking",
+        "input_parameters": {
+          "test_data_id": "TD-TC-26",
+          "test_case_id": "TC-26",
+          "purpose": "Verify room and equipment are saved under a single booking ID.",
+          "setup": {
+            "bookings_before_action": [],
+            "maintenance_resources": []
+          },
+          "input": {
+            "requester": "student",
+            "resource": "room",
+            "start_offset_minutes": 0,
+            "duration_minutes": 60,
+            "purpose": "Practice",
+            "attendees": 6,
+            "bundled_equipment": [
+              "projector"
+            ]
+          },
+          "expected": {
+            "status": "Pending",
+            "booking_item_count": 2,
+            "item_roles": [
+              "PRIMARY",
+              "BUNDLED_EQUIPMENT"
+            ]
+          },
+          "assertion": "Exactly one booking is created with one PRIMARY room item and one BUNDLED_EQUIPMENT item.",
+          "definition_status": "Executable runtime input consumed by tests/test_campus_booking.py",
+          "execution_ready": true,
+          "scope": "Python/SQLite prototype only; not target application."
+        },
+        "data_definition_status": "Executable runtime input consumed by tests/test_campus_booking.py; passed in current prototype run.",
+        "current_evidence_status": "PASS on current package run: Python/SQLite prototype only; not the target/deployed group application.",
+        "note": "Defined in acceptance_test_data.json and consumed by the automated test; prototype only.",
+        "last_run": {
+          "command": "python -m pytest tests/test_campus_booking.py -v",
+          "result": "PASS",
+          "scope": "src/crbs.py educational prototype"
+        }
+      },
+      "current_package_code_ref": "tests/test_campus_booking.py::test_TC26_room_and_bundled_equipment_are_one_request"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-27",
+        "title": "Admin creates and disables an account",
+        "type": "Positive",
+        "requirements": "REQ-08; REQ-09",
+        "use_cases": "UC-14",
+        "priority": "Medium",
+        "preconditions": "Admin authenticated",
+        "steps": "Create account; validate; disable another account",
+        "expected_result": "Account created/disabled; action is audited",
+        "source_actual_result": "Verified by design walkthrough.",
+        "source_status": "Verified (Design Walkthrough)",
+        "executed_by": "Nguyễn Đức Tính (desk-check)",
+        "executed_date": "2026-09-30",
+        "source_test_code_id": "TST-CODE-27",
+        "teacher_purpose": "Closes UC-14 test gap",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Update after live execution",
+        "verification_mode": "Design Walkthrough (manual, no running system)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-27",
+        "test_case_id": "TC-27",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Authentication, roles and permissions",
+        "input_parameters": {
+          "test_data_id": "TD-TC-27",
+          "test_case_id": "TC-27",
+          "purpose": "Closes UC-14 test gap",
+          "setup": {
+            "source_preconditions": "Admin authenticated",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "admin": {
+              "role": "System Admin"
+            },
+            "new_account": {
+              "display_name": "Demo User",
+              "role": "Student",
+              "email": "demo.student@example.edu"
+            },
+            "target_account": {
+              "key": "student2",
+              "active_after": false
+            }
+          },
+          "expected": {
+            "create_and_disable_succeed": true,
+            "audit_events_recorded": true
+          },
+          "assertion": {
+            "source_expected_result": "Account created/disabled; action is audited",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "admin": {
+              "role": "System Admin"
+            },
+            "new_account": {
+              "display_name": "Demo User",
+              "role": "Student",
+              "email": "demo.student@example.edu"
+            },
+            "target_account": {
+              "key": "student2",
+              "active_after": false
+            },
+            "expected": {
+              "create_and_disable_succeed": true,
+              "audit_events_recorded": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Design walkthrough only; no current execution evidence in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-28",
+        "title": "Equipment check-in records condition correctly",
+        "type": "Functional",
+        "requirements": "REQ-05",
+        "use_cases": "UC-12",
+        "priority": "Should",
+        "preconditions": "Equipment status is 'In Use' from a confirmed booking.",
+        "steps": "Facility Staff selects the returned item; records condition as Good, Damaged or Missing; submits check-in.",
+        "expected_result": "Good item becomes Available only if no open incident remains; Damaged/Missing item remains unavailable and opens/links a maintenance incident. Record timestamp and staff ID.",
+        "source_actual_result": "Not executed.",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "TST-CODE-28",
+        "teacher_purpose": "Closes the REQ-05 coverage gap uncovered when TC-11/TC-12 were corrected from REQ-05 to REQ-06.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Not yet executed (Planned)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-28",
+        "test_case_id": "TC-28",
+        "scenario_ids": [
+          "SC-03"
+        ],
+        "module": "Equipment and maintenance",
+        "input_parameters": {
+          "test_data_id": "TD-TC-28",
+          "test_case_id": "TC-28",
+          "purpose": "Closes the REQ-05 coverage gap uncovered when TC-11/TC-12 were corrected from REQ-05 to REQ-06.",
+          "setup": {
+            "source_preconditions": "Equipment status is 'In Use' from a confirmed booking.",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "equipment": {
+              "name": "Projector P01",
+              "checkout_state": "In Use"
+            },
+            "return_conditions": [
+              "Good",
+              "Damaged",
+              "Missing"
+            ],
+            "expected_by_condition": {
+              "Good": "Available only if no open incident",
+              "Damaged": "Under Maintenance and incident open/linked",
+              "Missing": "Unavailable and incident open/linked"
+            },
+            "required_fields": [
+              "condition",
+              "return timestamp",
+              "staff ID"
+            ]
+          },
+          "expected": {
+            "by_condition": {
+              "Good": "Available only if no open incident",
+              "Damaged": "Under Maintenance and incident open/linked",
+              "Missing": "Unavailable and incident open/linked"
+            },
+            "source_expected_result": "Good item becomes Available only if no open incident remains; Damaged/Missing item remains unavailable and opens/links a maintenance incident. Record timestamp and staff ID."
+          },
+          "assertion": {
+            "source_expected_result": "Good item becomes Available only if no open incident remains; Damaged/Missing item remains unavailable and opens/links a maintenance incident. Record timestamp and staff ID.",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "equipment": {
+              "name": "Projector P01",
+              "checkout_state": "In Use"
+            },
+            "return_conditions": [
+              "Good",
+              "Damaged",
+              "Missing"
+            ],
+            "expected_by_condition": {
+              "Good": "Available only if no open incident",
+              "Damaged": "Under Maintenance and incident open/linked",
+              "Missing": "Unavailable and incident open/linked"
+            },
+            "required_fields": [
+              "condition",
+              "return timestamp",
+              "staff ID"
+            ]
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-29",
+        "title": "Equipment check-out logged with staff ID and timestamp",
+        "type": "Functional",
+        "requirements": "REQ-04",
+        "use_cases": "UC-11",
+        "priority": "Must",
+        "preconditions": "Confirmed booking exists for equipment; equipment is eligible for checkout",
+        "steps": "Facility Staff verifies booking -> records check-out timestamp and staff ID",
+        "expected_result": "Equipment status updated to 'In Use'; check-out record created with staff ID and timestamp",
+        "source_actual_result": "Not executed.",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "TST-CODE-29",
+        "teacher_purpose": "Closes REQ-04 / UC-11 check-out logging coverage gap",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Planned (manual / live execution)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-29",
+        "test_case_id": "TC-29",
+        "scenario_ids": [
+          "SC-03"
+        ],
+        "module": "Equipment and maintenance",
+        "input_parameters": {
+          "test_data_id": "TD-TC-29",
+          "test_case_id": "TC-29",
+          "purpose": "Closes REQ-04 / UC-11 check-out logging coverage gap",
+          "setup": {
+            "source_preconditions": "Confirmed booking exists for equipment; equipment is eligible for checkout",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "equipment": {
+              "name": "Projector P01",
+              "booking_state": "Approved"
+            },
+            "staff": {
+              "role": "Facility Staff",
+              "id": "STAFF-01"
+            }
+          },
+          "expected": {
+            "checkout_recorded": true,
+            "timestamp_present": true,
+            "staff_id_present": true,
+            "resource_state": "In Use"
+          },
+          "assertion": {
+            "source_expected_result": "Equipment status updated to 'In Use'; check-out record created with staff ID and timestamp",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "equipment": {
+              "name": "Projector P01",
+              "booking_state": "Approved"
+            },
+            "staff": {
+              "role": "Facility Staff",
+              "id": "STAFF-01"
+            },
+            "expected": {
+              "checkout_recorded": true,
+              "timestamp_present": true,
+              "staff_id_present": true,
+              "resource_state": "In Use"
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-30",
+        "title": "Admin creates/edits a role permission set",
+        "type": "Functional",
+        "requirements": "REQ-08; REQ-09",
+        "use_cases": "UC-15",
+        "priority": "Should",
+        "preconditions": "Admin authenticated.",
+        "steps": "Admin opens role management; edits permissions for a role; saves",
+        "expected_result": "Role-permission mapping updated and enforced on next request; change is audited.",
+        "source_actual_result": "Not executed.",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "TST-CODE-30",
+        "teacher_purpose": "Closes the UC-15 gap - TC-19/TC-20 were incorrectly cross-referenced to UC-15 in UC-Test Trace but actually belong to UC-09/UC-01.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Not yet executed (Planned)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-30",
+        "test_case_id": "TC-30",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Authentication, roles and permissions",
+        "input_parameters": {
+          "test_data_id": "TD-TC-30",
+          "test_case_id": "TC-30",
+          "purpose": "Closes the UC-15 gap - TC-19/TC-20 were incorrectly cross-referenced to UC-15 in UC-Test Trace but actually belong to UC-09/UC-01.",
+          "setup": {
+            "source_preconditions": "Admin authenticated.",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "admin": {
+              "role": "System Admin"
+            },
+            "role_permission_change": {
+              "target_role": "Student",
+              "permission": "manage_resource_catalogue",
+              "new_value": false
+            },
+            "follow_up_actor": {
+              "role": "Student"
+            }
+          },
+          "expected": {
+            "mapping_saved": true,
+            "unauthorized_request_denied": true,
+            "change_audited": true
+          },
+          "assertion": {
+            "source_expected_result": "Role-permission mapping updated and enforced on next request; change is audited.",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "admin": {
+              "role": "System Admin"
+            },
+            "role_permission_change": {
+              "target_role": "Student",
+              "permission": "manage_resource_catalogue",
+              "new_value": false
+            },
+            "follow_up_actor": {
+              "role": "Student"
+            },
+            "expected": {
+              "mapping_saved": true,
+              "unauthorized_request_denied": true,
+              "change_audited": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-31",
+        "title": "Facility Staff logs maintenance incident and updates equipment status",
+        "type": "Functional",
+        "requirements": "REQ-07",
+        "use_cases": "UC-13",
+        "priority": "Must",
+        "preconditions": "Facility Staff is logged in; equipment item exists and requires repair/maintenance",
+        "steps": "Facility Staff opens maintenance module -> inputs incident details (description, severity) -> submits log",
+        "expected_result": "Incident log recorded with staff ID and timestamp; equipment status updated to 'Under Maintenance' and excluded from search/booking",
+        "source_actual_result": "Not executed.",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "TST-CODE-31",
+        "teacher_purpose": "Directly verifies REQ-07 / UC-13 maintenance incident logging workflow by Facility Staff",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": null,
+        "verification_mode": "Planned (manual / live execution)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-31",
+        "test_case_id": "TC-31",
+        "scenario_ids": [
+          "SC-03"
+        ],
+        "module": "Equipment and maintenance",
+        "input_parameters": {
+          "test_data_id": "TD-TC-31",
+          "test_case_id": "TC-31",
+          "purpose": "Directly verifies REQ-07 / UC-13 maintenance incident logging workflow by Facility Staff",
+          "setup": {
+            "source_preconditions": "Facility Staff is logged in; equipment item exists and requires repair/maintenance",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "staff": {
+              "role": "Facility Staff",
+              "id": "STAFF-01"
+            },
+            "resource": {
+              "name": "Projector P01",
+              "kind": "Equipment"
+            },
+            "incident": {
+              "description": "Projector lamp damaged",
+              "severity": "Use target system's defined severity values"
+            }
+          },
+          "expected": {
+            "incident_logged": true,
+            "resource_under_maintenance": true,
+            "excluded_from_search": true
+          },
+          "assertion": {
+            "source_expected_result": "Incident log recorded with staff ID and timestamp; equipment status updated to 'Under Maintenance' and excluded from search/booking",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "staff": {
+              "role": "Facility Staff",
+              "id": "STAFF-01"
+            },
+            "resource": {
+              "name": "Projector P01",
+              "kind": "Equipment"
+            },
+            "incident": {
+              "description": "Projector lamp damaged",
+              "severity": "Use target system's defined severity values"
+            },
+            "expected": {
+              "incident_logged": true,
+              "resource_under_maintenance": true,
+              "excluded_from_search": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-32",
+        "title": "Facility Staff creates/updates room and equipment catalogue",
+        "type": "Functional/Security",
+        "requirements": "REQ-13; REQ-08; REQ-09",
+        "use_cases": "UC-18",
+        "priority": "Must",
+        "preconditions": "Facility Staff authenticated; resource catalogue available.",
+        "steps": "Create a room/equipment item; update its capacity/access attributes; attempt the same update as Student.",
+        "expected_result": "Authorized catalogue changes are saved and audited; unauthorized changes are rejected without state change.",
+        "source_actual_result": "Not executed against the group system.",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "TST-CODE-32",
+        "teacher_purpose": "Closes REQ-13 / UC-18 mapping gap.",
+        "source_evidence_log": "Needs execution on actual group implementation.",
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Pending",
+        "verification_mode": "Not yet executed (Planned)"
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-32",
+        "test_case_id": "TC-32",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Resource catalogue administration",
+        "input_parameters": {
+          "test_data_id": "TD-TC-32",
+          "test_case_id": "TC-32",
+          "purpose": "Closes REQ-13 / UC-18 mapping gap.",
+          "setup": {
+            "source_preconditions": "Facility Staff authenticated; resource catalogue available.",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "staff": {
+              "role": "Facility Staff"
+            },
+            "create_resource": {
+              "name": "Room R205",
+              "kind": "Room",
+              "capacity": 40,
+              "restricted": false
+            },
+            "update_resource": {
+              "capacity": 45,
+              "allowed_roles": [
+                "Lecturer",
+                "Facility Staff",
+                "System Admin"
+              ]
+            },
+            "negative_actor": {
+              "role": "Student"
+            }
+          },
+          "expected": {
+            "staff_update_saved_and_audited": true,
+            "student_update_denied": true
+          },
+          "assertion": {
+            "source_expected_result": "Authorized catalogue changes are saved and audited; unauthorized changes are rejected without state change.",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "staff": {
+              "role": "Facility Staff"
+            },
+            "create_resource": {
+              "name": "Room R205",
+              "kind": "Room",
+              "capacity": 40,
+              "restricted": false
+            },
+            "update_resource": {
+              "capacity": 45,
+              "allowed_roles": [
+                "Lecturer",
+                "Facility Staff",
+                "System Admin"
+              ]
+            },
+            "negative_actor": {
+              "role": "Student"
+            },
+            "expected": {
+              "staff_update_saved_and_audited": true,
+              "student_update_denied": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-01",
+        "title": "Student practice request waits for named Lecturer",
+        "type": "Positive",
+        "requirements": "REQ-02; REQ-12",
+        "use_cases": "UC-03",
+        "priority": "Must",
+        "preconditions": "Student authenticated; room and equipment available; Lecturer B exists",
+        "steps": "Student selects room + projector, selects Lecturer B and submits",
+        "expected_result": "One request exists in Pending Lecturer Confirmation; notification queued to Lecturer B",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-01",
+        "teacher_purpose": "Proves Student is requester and endorsement is a separate gate.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-01",
+        "test_case_id": "TC-SC-01",
+        "scenario_ids": [
+          "SC-02"
+        ],
+        "module": "Student practice / lecturer endorsement",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-01",
+          "test_case_id": "TC-SC-01",
+          "purpose": "Proves Student is requester and endorsement is a separate gate.",
+          "setup": {
+            "source_preconditions": "Student authenticated; room and equipment available; Lecturer B exists",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "student": {
+              "role": "Student",
+              "key": "student"
+            },
+            "lecturer": {
+              "name": "Lecturer B",
+              "role": "Lecturer"
+            },
+            "room": "A101",
+            "equipment": [
+              "Projector P01"
+            ],
+            "attendees": 6,
+            "start_offset_days": 2,
+            "start_hour": 15,
+            "duration_minutes": 120
+          },
+          "expected": {
+            "state": "Pending Lecturer Confirmation",
+            "lecturer_notified": true
+          },
+          "assertion": {
+            "source_expected_result": "One request exists in Pending Lecturer Confirmation; notification queued to Lecturer B",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "student": {
+              "role": "Student",
+              "key": "student"
+            },
+            "lecturer": {
+              "name": "Lecturer B",
+              "role": "Lecturer"
+            },
+            "room": "A101",
+            "equipment": [
+              "Projector P01"
+            ],
+            "attendees": 6,
+            "start_offset_days": 2,
+            "start_hour": 15,
+            "duration_minutes": 120,
+            "expected": {
+              "state": "Pending Lecturer Confirmation",
+              "lecturer_notified": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-02",
+        "title": "Only named Lecturer can confirm student practice",
+        "type": "Security",
+        "requirements": "REQ-09; REQ-12",
+        "use_cases": "UC-17",
+        "priority": "Must",
+        "preconditions": "Request is Pending Lecturer Confirmation and names Lecturer B",
+        "steps": "Lecturer C attempts confirmation",
+        "expected_result": "Denied; state unchanged; denial audited",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-02",
+        "teacher_purpose": "Validates the correct supervising Lecturer gate.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-02",
+        "test_case_id": "TC-SC-02",
+        "scenario_ids": [
+          "SC-02"
+        ],
+        "module": "Student practice / lecturer endorsement",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-02",
+          "test_case_id": "TC-SC-02",
+          "purpose": "Validates the correct supervising Lecturer gate.",
+          "setup": {
+            "source_preconditions": "Request is Pending Lecturer Confirmation and names Lecturer B",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "named_lecturer": "Lecturer B",
+            "attempting_lecturer": "Lecturer C",
+            "booking_state": "Pending Lecturer Confirmation"
+          },
+          "expected": {
+            "confirmation_allowed": false,
+            "state_unchanged": true,
+            "denial_audited": true
+          },
+          "assertion": {
+            "source_expected_result": "Denied; state unchanged; denial audited",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "named_lecturer": "Lecturer B",
+            "attempting_lecturer": "Lecturer C",
+            "booking_state": "Pending Lecturer Confirmation",
+            "expected": {
+              "confirmation_allowed": false,
+              "state_unchanged": true,
+              "denial_audited": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-03",
+        "title": "Facility Staff cannot approve before lecturer endorsement",
+        "type": "Negative",
+        "requirements": "REQ-03; REQ-12",
+        "use_cases": "UC-09; UC-17",
+        "priority": "Must",
+        "preconditions": "Student practice request has no lecturer endorsement",
+        "steps": "Facility Staff attempts Approve",
+        "expected_result": "Approval blocked; state remains Pending Lecturer Confirmation",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-03",
+        "teacher_purpose": "Separates supervision decision from facility decision.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-03",
+        "test_case_id": "TC-SC-03",
+        "scenario_ids": [
+          "SC-02"
+        ],
+        "module": "Student practice / lecturer endorsement",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-03",
+          "test_case_id": "TC-SC-03",
+          "purpose": "Separates supervision decision from facility decision.",
+          "setup": {
+            "source_preconditions": "Student practice request has no lecturer endorsement",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "booking_state": "Pending Lecturer Confirmation",
+            "lecturer_endorsement": null,
+            "attempting_actor": {
+              "role": "Facility Staff"
+            },
+            "decision": "Approved"
+          },
+          "expected": {
+            "approval_allowed": false,
+            "state_unchanged": true
+          },
+          "assertion": {
+            "source_expected_result": "Approval blocked; state remains Pending Lecturer Confirmation",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "booking_state": "Pending Lecturer Confirmation",
+            "lecturer_endorsement": null,
+            "attempting_actor": {
+              "role": "Facility Staff"
+            },
+            "decision": "Approved",
+            "expected": {
+              "approval_allowed": false,
+              "state_unchanged": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-04",
+        "title": "Lecturer decline ends student practice request",
+        "type": "Negative",
+        "requirements": "REQ-03; REQ-12",
+        "use_cases": "UC-17",
+        "priority": "Must",
+        "preconditions": "Request awaits Lecturer B",
+        "steps": "Lecturer B declines with reason",
+        "expected_result": "Request becomes Rejected; reason, audit and notification are created",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-04",
+        "teacher_purpose": "Covers alternative flow.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-04",
+        "test_case_id": "TC-SC-04",
+        "scenario_ids": [
+          "SC-02"
+        ],
+        "module": "Student practice / lecturer endorsement",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-04",
+          "test_case_id": "TC-SC-04",
+          "purpose": "Covers alternative flow.",
+          "setup": {
+            "source_preconditions": "Request awaits Lecturer B",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "named_lecturer": "Lecturer B",
+            "decision": "Decline",
+            "reason": "Unable to supervise this session"
+          },
+          "expected": {
+            "state": "Rejected",
+            "reason_saved": true,
+            "audit_and_notification_created": true
+          },
+          "assertion": {
+            "source_expected_result": "Request becomes Rejected; reason, audit and notification are created",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "named_lecturer": "Lecturer B",
+            "decision": "Decline",
+            "reason": "Unable to supervise this session",
+            "expected": {
+              "state": "Rejected",
+              "reason_saved": true,
+              "audit_and_notification_created": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-05",
+        "title": "Confirmed student practice proceeds to staff queue",
+        "type": "Positive",
+        "requirements": "REQ-03; REQ-12",
+        "use_cases": "UC-17; UC-09",
+        "priority": "Must",
+        "preconditions": "Request awaits Lecturer B; resources still available",
+        "steps": "Lecturer B confirms",
+        "expected_result": "State becomes Pending Staff Approval; Facility Staff can review",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-05",
+        "teacher_purpose": "Validates transition between approval roles.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-05",
+        "test_case_id": "TC-SC-05",
+        "scenario_ids": [
+          "SC-02"
+        ],
+        "module": "Student practice / lecturer endorsement",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-05",
+          "test_case_id": "TC-SC-05",
+          "purpose": "Validates transition between approval roles.",
+          "setup": {
+            "source_preconditions": "Request awaits Lecturer B; resources still available",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "named_lecturer": "Lecturer B",
+            "decision": "Confirm",
+            "room_and_equipment_available": true
+          },
+          "expected": {
+            "state": "Pending Staff Approval",
+            "staff_queue_visible": true
+          },
+          "assertion": {
+            "source_expected_result": "State becomes Pending Staff Approval; Facility Staff can review",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "named_lecturer": "Lecturer B",
+            "decision": "Confirm",
+            "room_and_equipment_available": true,
+            "expected": {
+              "state": "Pending Staff Approval",
+              "staff_queue_visible": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-06",
+        "title": "Staff rechecks bundled equipment at final decision",
+        "type": "Negative/Race",
+        "requirements": "REQ-01; REQ-03",
+        "use_cases": "UC-09",
+        "priority": "Must",
+        "preconditions": "Request awaits Staff; equipment becomes unavailable/maintenance-blocked",
+        "steps": "Staff attempts Approve",
+        "expected_result": "Approval blocked; no Approved state is written; reason/audit recorded",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-06",
+        "teacher_purpose": "Prevents room-only partial approval.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-06",
+        "test_case_id": "TC-SC-06",
+        "scenario_ids": [
+          "SC-02",
+          "SC-04"
+        ],
+        "module": "Booking approval / bundled equipment",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-06",
+          "test_case_id": "TC-SC-06",
+          "purpose": "Prevents room-only partial approval.",
+          "setup": {
+            "source_preconditions": "Request awaits Staff; equipment becomes unavailable/maintenance-blocked",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "booking_state": "Pending Staff Approval",
+            "bundled_equipment": "Projector P01",
+            "intervening_change": "Set item under maintenance before final approval"
+          },
+          "expected": {
+            "approval_allowed": false,
+            "approved_state_not_written": true,
+            "audit_reason_recorded": true
+          },
+          "assertion": {
+            "source_expected_result": "Approval blocked; no Approved state is written; reason/audit recorded",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "booking_state": "Pending Staff Approval",
+            "bundled_equipment": "Projector P01",
+            "intervening_change": "Set item under maintenance before final approval",
+            "expected": {
+              "approval_allowed": false,
+              "approved_state_not_written": true,
+              "audit_reason_recorded": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-07",
+        "title": "Skipped condition check cannot make damaged equipment available",
+        "type": "Hazard/Safety",
+        "requirements": "REQ-05; REQ-07",
+        "use_cases": "UC-12; UC-13",
+        "priority": "Must",
+        "preconditions": "Equipment has open checkout; return condition is Damaged",
+        "steps": "Attempt check-in without condition then with Damaged",
+        "expected_result": "Blank condition rejected; Damaged creates/links incident and blocks availability",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-07",
+        "teacher_purpose": "Direct verification of HZ-02 barrier.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-07",
+        "test_case_id": "TC-SC-07",
+        "scenario_ids": [
+          "SC-03"
+        ],
+        "module": "Equipment and maintenance",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-07",
+          "test_case_id": "TC-SC-07",
+          "purpose": "Direct verification of HZ-02 barrier.",
+          "setup": {
+            "source_preconditions": "Equipment has open checkout; return condition is Damaged",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "equipment": {
+              "name": "Projector P01",
+              "checkout_state": "In Use"
+            },
+            "first_action": {
+              "condition": null
+            },
+            "second_action": {
+              "condition": "Damaged",
+              "notes": "Lens damaged"
+            }
+          },
+          "expected": {
+            "blank_condition_rejected": true,
+            "damaged_item_unavailable": true,
+            "incident_opened": true
+          },
+          "assertion": {
+            "source_expected_result": "Blank condition rejected; Damaged creates/links incident and blocks availability",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "equipment": {
+              "name": "Projector P01",
+              "checkout_state": "In Use"
+            },
+            "first_action": {
+              "condition": null
+            },
+            "second_action": {
+              "condition": "Damaged",
+              "notes": "Lens damaged"
+            },
+            "expected": {
+              "blank_condition_rejected": true,
+              "damaged_item_unavailable": true,
+              "incident_opened": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-08",
+        "title": "Maintenance incident closure requires resolution",
+        "type": "Negative",
+        "requirements": "REQ-07",
+        "use_cases": "UC-13",
+        "priority": "Must",
+        "preconditions": "Open incident exists",
+        "steps": "Attempt to close with blank resolution",
+        "expected_result": "Closure rejected; resource remains unavailable",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-08",
+        "teacher_purpose": "Prevents premature restoration.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-08",
+        "test_case_id": "TC-SC-08",
+        "scenario_ids": [
+          "SC-03"
+        ],
+        "module": "Equipment and maintenance",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-08",
+          "test_case_id": "TC-SC-08",
+          "purpose": "Prevents premature restoration.",
+          "setup": {
+            "source_preconditions": "Open incident exists",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "incident": {
+              "id": "INC-001",
+              "state": "Open",
+              "resolution": ""
+            },
+            "action": "Close maintenance incident"
+          },
+          "expected": {
+            "closure_rejected": true,
+            "resource_still_unavailable": true
+          },
+          "assertion": {
+            "source_expected_result": "Closure rejected; resource remains unavailable",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "incident": {
+              "id": "INC-001",
+              "state": "Open",
+              "resolution": ""
+            },
+            "action": "Close maintenance incident",
+            "expected": {
+              "closure_rejected": true,
+              "resource_still_unavailable": true
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-09",
+        "title": "Cancellation at exact two-hour boundary",
+        "type": "Boundary",
+        "requirements": "REQ-06",
+        "use_cases": "UC-05",
+        "priority": "Must",
+        "preconditions": "Owner booking is Pending/Approved",
+        "steps": "Cancel when start time is exactly 2 hours away",
+        "expected_result": "Allowed under current draft; booking Cancelled and resources released",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-09",
+        "teacher_purpose": "Policy boundary requires instructor confirmation.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-09",
+        "test_case_id": "TC-SC-09",
+        "scenario_ids": [
+          "SC-00"
+        ],
+        "module": "Booking cancellation",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-09",
+          "test_case_id": "TC-SC-09",
+          "purpose": "Policy boundary requires instructor confirmation.",
+          "setup": {
+            "source_preconditions": "Owner booking is Pending/Approved",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "booking": {
+              "owner": "student",
+              "state": "Pending",
+              "start_offset_minutes": 0
+            },
+            "cancel_exact_minutes_before_start": 120
+          },
+          "expected": {
+            "cancelled": true,
+            "note": "Draft interpretation; exact boundary requires instructor confirmation"
+          },
+          "assertion": {
+            "source_expected_result": "Allowed under current draft; booking Cancelled and resources released",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "booking": {
+              "owner": "student",
+              "state": "Pending",
+              "start_offset_minutes": 0
+            },
+            "cancel_exact_minutes_before_start": 120,
+            "expected": {
+              "cancelled": true,
+              "note": "Draft interpretation; exact boundary requires instructor confirmation"
+            }
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    },
+    {
+      "test_case": {
+        "test_case_id": "TC-SC-10",
+        "title": "Two simultaneous overlapping submissions do not both succeed",
+        "type": "Concurrency/Hazard",
+        "requirements": "REQ-01; REQ-02",
+        "use_cases": "UC-03; UC-07",
+        "priority": "Must",
+        "preconditions": "Two users submit same room/time concurrently",
+        "steps": "Run simultaneous requests on target database",
+        "expected_result": "At most one request obtains the slot; no duplicate or partial booking",
+        "source_actual_result": "Not Run",
+        "source_status": "Planned",
+        "executed_by": null,
+        "executed_date": null,
+        "source_test_code_id": "NEW-SC-10",
+        "teacher_purpose": "Must run against real concurrency-capable target DB.",
+        "source_evidence_log": null,
+        "defect_id": null,
+        "retest_id": null,
+        "actual_owner_decision": "Design-only; not executed against group code",
+        "verification_mode": null
+      },
+      "test_data": {
+        "test_data_id": "TD-TC-SC-10",
+        "test_case_id": "TC-SC-10",
+        "scenario_ids": [
+          "SC-04"
+        ],
+        "module": "Concurrent booking / conflict control",
+        "input_parameters": {
+          "test_data_id": "TD-TC-SC-10",
+          "test_case_id": "TC-SC-10",
+          "purpose": "Must run against real concurrency-capable target DB.",
+          "setup": {
+            "source_preconditions": "Two users submit same room/time concurrently",
+            "note": "Set up initial database/system state from source_parameters before execution; confirm exact fixture fields."
+          },
+          "input": {
+            "concurrent_requests": [
+              {
+                "actor": "student",
+                "resource": "A101",
+                "start": "15:00",
+                "end": "17:00"
+              },
+              {
+                "actor": "student2",
+                "resource": "A101",
+                "start": "15:00",
+                "end": "17:00"
+              }
+            ],
+            "execution": "Parallel requests against target database"
+          },
+          "expected": {
+            "accepted_count_max": 1,
+            "partial_booking_count": 0
+          },
+          "assertion": {
+            "source_expected_result": "At most one request obtains the slot; no duplicate or partial booking",
+            "exact_test_oracle": "Define assertions for each expected field against actual target-system response/state before coding."
+          },
+          "source_parameters": {
+            "concurrent_requests": [
+              {
+                "actor": "student",
+                "resource": "A101",
+                "start": "15:00",
+                "end": "17:00"
+              },
+              {
+                "actor": "student2",
+                "resource": "A101",
+                "start": "15:00",
+                "end": "17:00"
+              }
+            ],
+            "execution": "Parallel requests against target database",
+            "expected": {
+              "accepted_count_max": 1,
+              "partial_booking_count": 0
+            },
+            "status": "Requires target database/concurrency test"
+          },
+          "definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+          "execution_ready": false,
+          "scope": "Design data only; no current execution evidence on target group system."
+        },
+        "data_definition_status": "Draft definition only; confirm policy/API/database fixture and exact assertions before execution.",
+        "current_evidence_status": "Planned / Not Run against the target group application in this package.",
+        "note": "Prepared from the current TestCases row and scenario/rule context; not executed.",
+        "last_run": null
+      },
+      "current_package_code_ref": "NOT IMPLEMENTED IN CURRENT ACCEPTANCE SUITE"
+    }
+  ]
+}
